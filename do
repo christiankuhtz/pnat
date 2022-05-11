@@ -58,7 +58,7 @@ if [[ -z ${LOCATION} ]]
 then
   echo -n "LOCATION not found in ${CONFIG}. Using default "
 else
-  echo -n "Using custom "
+  echo -n "LOCATION found in ${CONFIG}. Using "
 fi
 echo "region ${LOCATION}."
 
