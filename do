@@ -252,6 +252,6 @@ for COMPONENT in source destination; do
   done
 done
 
-# Many other things go here
+# Everything _should_ be done by the time we get here.
 
 echo "done."

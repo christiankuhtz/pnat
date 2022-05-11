@@ -10,4 +10,5 @@ write_files:
 power_state:
   mode: reboot
   delay: 1
-  message: "cleanup reboot"    
+  message: "cleanup reboot"
+  
