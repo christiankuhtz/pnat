@@ -217,7 +217,7 @@ for COMPONENT in source destination; do
     --priority 103 \
     --source-address-prefixes ${PIPADDR[${OTHER}-gw]} \
     --destination-port-ranges ${PORT[wireguard]} \
-    --direction Inbound
+    --direction Inbound \
     --protocol Udp \
     >>${LOG} 2>&1 || exit 1
   echo " done. (${PIPADDR[${OTHER}-gw]}->${PIPADDR[${COMPONENT}-gw]}:${PORT[wireguard]})"
