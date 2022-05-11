@@ -83,6 +83,19 @@ else
   echo "${LOG} will be created."
 fi
 
+# Check if yaml configs exist
+
+for COMPONENT in source destination; do
+  for TYPE in vm gw; do
+    if [[ -r ${COMPONENT}-${TYPE}-init.yaml ]]
+    then
+      echo "Found readable ${COMPONENT}-${TYPE}-init.yaml."
+    else
+      echo "Cloud-init YAML for ${COMPONENT}-${TYPE} doesn't exist. exiting." && exit 1
+    fi
+  done
+done
+
 # Check if resource group exists, kill if it does
 
 for COMPONENT in source destination; do
@@ -224,6 +237,7 @@ for COMPONENT in source destination; do
       --size ${VMSKU} \
       --admin-username "${ADMINUSER}" \
       --admin-password "${ADMINPASS}" \
+      --custom-data ${COMPONENT}-${TYPE}-init.yaml \
       >>${LOG} 2>&1 || exit 1
     echo " done."
   done
