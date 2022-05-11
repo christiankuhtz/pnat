@@ -54,12 +54,11 @@ then
 fi
 echo "credentials found in ${CONFIG}."
 
-echo -n 
 if [[ -z ${LOCATION} ]]
 then
   echo -n "LOCATION not found in ${CONFIG}. Using default "
 else
-  echo -n "custom "
+  echo -n "Using custom "
 fi
 echo "region ${LOCATION}."
 
