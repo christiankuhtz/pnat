@@ -69,6 +69,7 @@ else
   echo "${LOG} will be created."
 fi
 
+# Check if resource group exists, kill if it does
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
@@ -85,12 +86,16 @@ for COMPONENT in source destination; do
     echo -n "n't exist.."
   fi
 
+# Create clean resource group
+
   echo -n " creating.."
   az group create \
     --name ${RG} \
     --location ${LOCATION} \
     >>${LOG} 2>&1 || exit 1
   echo " done."
+
+# Create vnets
 
   echo -n "deploying ${COMPONENT}-vnet.."
   az network vnet create \
@@ -101,6 +106,8 @@ for COMPONENT in source destination; do
     --subnet-prefixes ${PREFIX[${COMPONENT}]}.0${PREFIXLEN[${COMPONENT}]} \
     >>${LOG} 2>&1 || exit 1
   echo " done."
+
+# Create public IPs and retrieve the addr
 
   for TYPE in vm gw; do
     echo -n "deploying ${COMPONENT}-${TYPE}-pip.."
@@ -118,6 +125,8 @@ for COMPONENT in source destination; do
       --query "ipAddress" \
       | sed 's/\"//g'`/32
     echo " done. ${PIPADDR[${COMPONENT}-${TYPE}]}"
+
+# Create NSG and NSG rule
 
     echo -n "deploying ${COMPONENT}-${TYPE}-nsg.."
     az network nsg create \
@@ -154,6 +163,8 @@ for COMPONENT in source destination; do
       >>${LOG} 2>&1 || exit 1
     echo " done. (${MYIPADDR}->${PIPADDR[${COMPONENT}-${TYPE}]}:${PORT[ssh]})"
 
+# Create NIC
+
     echo -n "deploying ${COMPONENT}-${TYPE}-nic.."
     PRIVIPADDR[${COMPONENT}-${TYPE}]=${PREFIX[${COMPONENT}]}.${SUBNETSUFFIX[${TYPE}]}
     az network nic create \
@@ -171,6 +182,8 @@ for COMPONENT in source destination; do
   done
 done
 
+# Make sure we know who the opposite end is
+
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   if [[ ${COMPONENT} == "source" ]]
@@ -179,6 +192,8 @@ for COMPONENT in source destination; do
   else
     OTHER="source"
   fi
+
+# Allow wireguard between gateways
 
   echo -n "creating ${COMPONENT}-gw-nsg-rule.."
   az network nsg rule create \
@@ -194,6 +209,8 @@ for COMPONENT in source destination; do
     >>${LOG} 2>&1 || exit 1
   echo " done. (${PIPADDR[${OTHER}-gw]}->${PIPADDR[${COMPONENT}-gw]}:${PORT[wireguard]})"
 done
+
+# Create our VMs
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
@@ -212,11 +229,15 @@ for COMPONENT in source destination; do
   done
 done
 
+# Show what was configured
+
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   for TYPE in vm gw; do
     echo "${COMPONENT}-${TYPE}: ${PIPADDR[${COMPONENT}-${TYPE}]} | ${PRIVIPADDR[${COMPONENT}-${TYPE}]}"
   done
 done
+
+# Many other things go here
 
 echo "done."
