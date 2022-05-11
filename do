@@ -1,5 +1,8 @@
 #!/bin/zsh
 #set -x 
+
+# "known good defaults", can be modified in CONFIG file
+
 PROJ=pnat
 LOCATION=westcentralus
 declare -A PREFIX
