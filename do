@@ -20,7 +20,7 @@ PORT[ssh]=22
 PORT[wireguard]=51820
 SUBNETSUFFIX[gw]=16
 SUBNETSUFFIX[vm]=17
-CREDS=./creds
+CONFIG=./config
 ACCELNET="--accelerated-networking"
 VMSKU=Standard_D2s_v5
 LOG=${PROJ}.log
@@ -32,28 +32,35 @@ else
   echo "${LOG} will be created."
 fi
 
-if [[ -a ${CREDS} ]]
+if [[ -a ${CONFIG} ]]
 then
-  if [[ -r ${CREDS} ]]
+  if [[ -r ${CONFIG} ]]
   then 
-    source ${CREDS}
+    source ${CONFIG}
   else
-    echo "credentials file (${CREDS}) unreadable. aborting." && exit 1
+    echo "credentials file (${CONFIG}) unreadable. aborting." && exit 1
   fi
 else
-  echo "credentials file (${CREDS}) missing. aborting." && exit 1
+  echo "credentials file (${CONFIG}) missing. aborting." && exit 1
 fi
 
 
 if [[ -z ${ADMINUSER} ]]
 then
-  echo "ADMINUSER parameter in file ${CREDS} missing. aborting." && exit 1
+  echo "ADMINUSER parameter in file ${CONFIG} missing. aborting." && exit 1
 fi
 if [[ -z ${ADMINPASS} ]]
 then
-  echo "ADMINPASS parameter in file ${CREDS} missing (must match Azure password rules). aborting." && exit 1
+  echo "ADMINPASS parameter in file ${CONFIG} missing (must match Azure password rules). aborting." && exit 1
 fi
-echo "credentials found in ${CREDS}."
+echo "credentials found in ${CONFIG}."
+
+if [[ -z ${REGION} ]]
+then
+  echo "Using default region ${REGION}."
+else
+  echo 
+fi
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
@@ -130,7 +137,7 @@ for COMPONENT in source destination; do
       --resource-group ${RG} \
       --nsg-name ${COMPONENT}-${TYPE}-nsg \
       --name ssh-myip \
-      --description "wide open ssh" \
+      --description "Not so wide open ssh" \
       --priority 100 \
       --destination-port-ranges ${PORT[ssh]} \
       --source-address-prefixes ${MYIPADDR} \
