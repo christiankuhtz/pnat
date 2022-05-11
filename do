@@ -133,7 +133,7 @@ for COMPONENT in source destination; do
       --description "wide open ssh" \
       --priority 100 \
       --destination-port-ranges ${PORT[ssh]} \
-      --destination-address-prefix ${PIPADDR[${COMPONENT}-${TYPE}]} \
+      --source-address-prefixes ${MYIPADDR} \
       --direction Inbound \
       --protocol Tcp \
       >>${LOG} 2>&1 || exit 1
