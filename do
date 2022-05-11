@@ -89,9 +89,9 @@ for COMPONENT in source destination; do
   for TYPE in vm gw; do
     if [[ -r ${COMPONENT}-${TYPE}-init.yaml ]]
     then
-      echo "Found readable ${COMPONENT}-${TYPE}-init.yaml."
+      echo "found readable ${COMPONENT}-${TYPE}-init.yaml."
     else
-      echo "Cloud-init YAML for ${COMPONENT}-${TYPE} doesn't exist. exiting." && exit 1
+      echo "cloud-init YAML for ${COMPONENT}-${TYPE} doesn't exist. exiting." && exit 1
     fi
   done
 done
