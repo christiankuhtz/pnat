@@ -55,12 +55,14 @@ then
 fi
 echo "credentials found in ${CONFIG}."
 
-if [[ -z ${REGION} ]]
+echo -n 
+if [[ -z ${LOCATION} ]]
 then
-  echo "Using default region ${REGION}."
+  echo -n "LOCATION not found in ${CONFIG}. Using default "
 else
-  echo 
+  echo -n "custom "
 fi
+echo "region ${LOCATION}."
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
