@@ -24,6 +24,17 @@ ACCELNET="--accelerated-networking"
 VMSKU=Standard_D2s_v5
 LOG=${PROJ}.log
 
+
+# Check if Azure CLI exists
+
+az 2>%1 >/dev/null
+if [ $? -eq 0 ]
+then
+  echo "Azure CLI exists"
+else
+  echo "Azure CLI required. Install or check installation."
+fi
+
 # check if CONFIG file exists and explain which parameters were set
 
 if [[ -a ${CONFIG} ]]
