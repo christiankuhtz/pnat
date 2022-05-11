@@ -33,9 +33,9 @@ LOG=${PROJ}.log
 az 2>%1 >/dev/null
 if [ $? -eq 0 ]
 then
-  echo "Azure CLI exists"
+  echo "Azure CLI found."
 else
-  echo "Azure CLI required. Install or check installation."
+  echo "Azure CLI required. Install Azure CLI or check installation."
 fi
 
 # check if CONFIG file exists and explain which parameters were set
