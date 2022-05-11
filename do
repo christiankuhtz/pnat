@@ -24,12 +24,7 @@ ACCELNET="--accelerated-networking"
 VMSKU=Standard_D2s_v5
 LOG=${PROJ}.log
 
-if [[ -a ${LOG} ]]
-then
-  echo "${LOG} exists, will be overwritten."
-else
-  echo "${LOG} will be created."
-fi
+# check if CONFIG file exists and explain which parameters were set
 
 if [[ -a ${CONFIG} ]]
 then
@@ -37,12 +32,13 @@ then
   then 
     source ${CONFIG}
   else
-    echo "credentials file (${CONFIG}) unreadable. aborting." && exit 1
+    echo "config file (${CONFIG}) unreadable. aborting." && exit 1
   fi
 else
-  echo "credentials file (${CONFIG}) missing. aborting." && exit 1
+  echo "config file (${CONFIG}) missing. aborting." && exit 1
 fi
 
+# Advise on creds
 
 if [[ -z ${ADMINUSER} ]]
 then
@@ -54,6 +50,8 @@ then
 fi
 echo "credentials found in ${CONFIG}."
 
+# Advise on location
+
 if [[ -z ${LOCATION} ]]
 then
   echo -n "LOCATION not found in ${CONFIG}. Using default "
@@ -61,6 +59,16 @@ else
   echo -n "LOCATION found in ${CONFIG}. Using "
 fi
 echo "region ${LOCATION}."
+
+# Advise on log file
+
+if [[ -a ${LOG} ]]
+then
+  echo "${LOG} exists, will be overwritten."
+else
+  echo "${LOG} will be created."
+fi
+
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
