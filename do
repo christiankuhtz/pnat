@@ -1,8 +1,7 @@
 #!/bin/zsh
 #set -x 
 PROJ=pnat
-#LOCATION=westus2
-LOCATION=westus3
+LOCATION=westcentralus
 declare -A PREFIX
 declare -A PREFIXLEN
 declare -A PIPADDR
