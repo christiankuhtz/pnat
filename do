@@ -146,20 +146,6 @@ for COMPONENT in source destination; do
       >>${LOG} 2>&1 || exit 1
     echo " done."
 
-    # echo -n "creating ${COMPONENT}-${TYPE}-nsg-rule.."
-    # az network nsg rule create \
-    #   --resource-group ${RG} \
-    #   --nsg-name ${COMPONENT}-${TYPE}-nsg \
-    #   --name ssh-myip \
-    #   --description "${MYIPADDR}->${PIPADDR[${COMPONENT}-${TYPE}]}:${PORT[ssh]}" \
-    #   --priority 100 \
-    #   --source-address-prefixes ${MYIPADDR} \
-    #   --destination-address-prefixes ${PIPADDR[${COMPONENT}-${TYPE}]} \
-    #   --destination-port-ranges ${PORT[ssh]} \
-    #   --protocol Tcp \
-    #   >>${LOG} 2>&1 || exit 1
-    # echo " done. (${MYIPADDR}->${PIPADDR[${COMPONENT}-${TYPE}]}:${PORT[ssh]})"
-
     echo -n "creating ${COMPONENT}-${TYPE}-nsg-rule.."
     az network nsg rule create \
       --resource-group ${RG} \
