@@ -16,7 +16,8 @@ PREFIX[source]=100.64.0
 PREFIX[destination]=100.64.1
 PREFIXLEN[source]=/24
 PREFIXLEN[destination]=/24
-MYIPADDR=`dig +short myip.opendns.com @resolver1.opendns.com`/32
+MYIPADDR=`curl -fs 'https://api.ipify.org'`
+#MYIPADDR=`dig +short myip.opendns.com @resolver1.opendns.com`/32
 echo "my IP address is ${MYIPADDR}"
 PORT[ssh]=22
 PORT[wireguard]=51820
