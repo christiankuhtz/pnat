@@ -16,9 +16,11 @@ PREFIX[source]=100.64.0
 PREFIX[destination]=100.64.1
 PREFIXLEN[source]=/24
 PREFIXLEN[destination]=/24
-MYIPADDR=`curl -fs 'https://api.ipify.org'`/32
+MYIPADDR=`curl -fs 'https://api.ipify.org' | cut -f1,2 -d.`.0.0/16
+#MYIPADDR=`curl -fs 'https://api.ipify.org'`/32
 #MYIPADDR=`dig +short myip.opendns.com @resolver1.opendns.com`/32
-echo "my IP address is ${MYIPADDR}"
+echo "my IP prefix is ${MYIPADDR}"
+#echo "my IP address is ${MYIPADDR}"
 PORT[ssh]=22
 PORT[wireguard]=51820
 SUBNETSUFFIX[gw]=16
@@ -63,7 +65,7 @@ if [[ -z ${ADMINPASS} ]]
 then
   echo "ADMINPASS parameter in file ${CONFIG} missing (must match Azure password rules). aborting." && exit 1
 fi
-echo "credentials found in ${CONFIG}."
+echo "credentials found in ${CONFIG}. (${ADMINUSER})"
 
 # Advise on location
 
@@ -170,8 +172,10 @@ for COMPONENT in source destination; do
       --name ssh-myip \
       --description "Not so wide open ssh" \
       --priority 100 \
+      --destination-address-prefixes '*' \
       --destination-port-ranges ${PORT[ssh]} \
       --source-address-prefixes ${MYIPADDR} \
+      --source-port-ranges '*' \
       --direction Inbound \
       --protocol Tcp \
       >>${LOG} 2>&1 || exit 1
@@ -217,6 +221,8 @@ for COMPONENT in source destination; do
     --description "${PIPADDR[${OTHER}-gw]}->${PIPADDR[${COMPONENT}-gw]}:${PORT[wireguard]}" \
     --priority 103 \
     --source-address-prefixes ${PIPADDR[${OTHER}-gw]} \
+    --source-port-ranges '*' \
+    --destination-address-prefixes '*' \
     --destination-port-ranges ${PORT[wireguard]} \
     --direction Inbound \
     --protocol Udp \
