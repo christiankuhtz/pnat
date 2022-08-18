@@ -16,7 +16,7 @@ PREFIX[source]=100.64.0
 PREFIX[destination]=100.64.1
 PREFIXLEN[source]=/24
 PREFIXLEN[destination]=/24
-MYIPADDR=`curl -fs 'https://api.ipify.org' | cut -f1,2 -d.`.0.0/16
+MYIPADDR=`curl -fs 'https://api.ipify.org' | cut -f1,2,3 -d.`.0/24
 #MYIPADDR=`curl -fs 'https://api.ipify.org'`/32
 #MYIPADDR=`dig +short myip.opendns.com @resolver1.opendns.com`/32
 echo "my IP prefix is ${MYIPADDR}"
@@ -56,6 +56,8 @@ then
 else
   echo "config file (${CONFIG}) missing. aborting." && exit 1
 fi
+
+echo "SSH port: ${PORT[ssh]}"
 
 # Advise on creds
 
