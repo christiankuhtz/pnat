@@ -28,6 +28,8 @@ SUBNETSUFFIX[vm]=17
 CONFIG=./config
 ACCELNET="--accelerated-networking"
 VMSKU=Standard_D2s_v5
+#UBUNTUIMAGEURN=UbuntuLTS
+UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-minimal-jammy:minimal-22_04-lts-gen2:22.04.202208100
 LOG=${PROJ}.log
 
 
@@ -239,7 +241,7 @@ for COMPONENT in source destination; do
     az vm create \
       --resource-group ${RG} \
       --name ${COMPONENT}-${TYPE} \
-      --image UbuntuLTS \
+      --image ${UBUNTUIMAGEURN} \
       --nics ${COMPONENT}-${TYPE}-nic \
       --size ${VMSKU} \
       --admin-username "${ADMINUSER}" \
