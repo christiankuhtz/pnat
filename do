@@ -283,6 +283,8 @@ for COMPONENT in source destination; do
     --virtual-network 
 done
 
+exit 0
+
 # Create public IPs and retrieve the addr
 
   for TYPE in vm gw; do
