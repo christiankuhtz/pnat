@@ -31,6 +31,7 @@ write_files:
 runcmd:
   - [ systemctl, restart, ssh ]
   - mkdir /run/wireguard
+  - 'wg genkey | sudo tee /etc/wireguard/private.key > /run/wireguard/private.base64'
  power_state:
   mode: reboot
   timeout: 2

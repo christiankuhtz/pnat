@@ -2,7 +2,6 @@
 package_upgrade: true
 packages:
   - unattended-upgrades
-  - apt-config-auto-update
   - wireguard
 write_files:
   - content: |
