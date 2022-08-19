@@ -263,19 +263,22 @@ for COMPONENT in source destination; do
     --private-connection-resource-id ${storageAccountID} \
     --group-id "file" \
     --connection-name "${PROJ}shared" \
-    --query "id" | tr -d '"') && \
+    --query "id" | tr -d '"')  && \
   echo " done."
 
   storageAccountSuffix=$(az cloud show \
     --query "suffixes.storageEndpoint" | tr -d '"')
-  
+  echo "storage account suffix: ${storageAccountSuffix}"
+
   dnsZoneName="privatelink.file.$storageAccountSuffix"
+  echo "DNS zone name: ${dnsZoneName}"
 
   dnsZone=$(az network private-dns zone create \
     --resource-group ${PROJ}-shared-rg \
     --name ${dnsZoneName} \
     --query "id" \ 
     tr -d '"')
+  echo "DNS zone: ${dnsZone}"
 
   az network private-dns link vnet create \
     --resource-group ${PROJ}-shared-rg \
