@@ -226,31 +226,15 @@ echo "got storage account ID ref."
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
-
-# Get virtual network ID
-  
-  vnetID=$(az network vnet show \
-          --resource-group ${PROJ}-${COMPONENT}-rg \
-          --name ${COMPONENT}-vnet \
-          --query "id" | \
-      tr -d '"') && \
-  echo "got vnet ID ref."
-
-# Get subnet ID
-  
-  subnetID=$(az network vnet subnet show \
-        --resource-group ${PROJ}-${COMPONENT}-rg \
-        --vnet-name ${COMPONENT}-vnet \
-        --name ${COMPONENT}-subnet \
-        --query "id" | \
-    tr -d '"') && \
-    echo "got subnet ID ref."
+  echo "> Deploying ${RG}"
 
 #  Disable PE network policies
 
   echo -n "disabling PE network policies on ${COMPONENT}-subnet.."
   az network vnet subnet update \
-    --ids ${subnetID} \
+    --resource-group ${RG} \
+    --name ${COMPONENT}-subnet \
+    --vnet-name ${COMPONENT}-vnet \
     --disable-private-endpoint-network-policies true \
     --output none && \
     echo " done."
