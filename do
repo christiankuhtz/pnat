@@ -268,19 +268,26 @@ for COMPONENT in source destination; do
     --connection-name "${PROJ}shared" \
     --query "id" | tr -d '"')  && \
 
-# private DNS setup
+# private DNS setup for vnet
+
+  echo -n "creating ${COMPONENT}.io private DNS zone.."
+  az network private-dns zone create \
+    --resource-group ${RG} \
+    --name "${COMPONENT}.io" \
+    >>${LOG} 2>&1 || exit 1
+  echo " done."
 
   echo -n "linking private DNS to vnet.."
   az network private-dns link vnet create \
     --resource-group ${RG} \
-    --name ${PROJ}-${COMPONENT}-link \
-    --zone-name "${COMPONENT}.local" \
+    --name ${COMPONENT}-link \
+    --zone-name "${COMPONENT}.io" \
     --virtual-network ${COMPONENT}-vnet \
     --registration-enabled false \
-    --output none
+    >>${LOG} 2>&1 || exit 1
   echo " done."
   
-# Link PE and private DNS
+# Create private DNS records for PE
 
   peNIC=$(az network private-endpoint show \
     --ids ${peID} \
@@ -294,18 +301,20 @@ for COMPONENT in source destination; do
     tr -d '"')
   echo "PE IP: ${peIP}."
 
+  echo -n "creating A record to ${peIP} for share.${COMPONENT}.io.."
   az network private-dns record-set a create \
     --resource-group ${RG} \
-    --zone-name "shared.local" \
-    --name ${PROJ}sharedpe \
+    --zone-name "${COMPONENT}.io" \
+    --name share \
     --output none
 
   az network private-dns record-set a add-record \
     --resource-group ${RG} \
-    --zone-name "shared.local" \
-    --record-set-name ${PROJ}sharedpe \
+    --zone-name "${COMPONENT}.io" \
+    --record-set-name share \
     --ipv4-address $peIP \
     --output none
+  echo " done."
 
 # Create public IPs and retrieve the addr
 
