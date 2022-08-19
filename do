@@ -227,7 +227,7 @@ echo "got storage account ID ref."
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
 
-  # Get virtual network ID
+# Get virtual network ID
   
   vnetID=$(az network vnet show \
           --resource-group ${PROJ}-${COMPONENT}-rg \
@@ -236,7 +236,7 @@ for COMPONENT in source destination; do
       tr -d '"') && \
   echo "got vnet ID ref."
 
-  # Get subnet ID
+# Get subnet ID
   
   subnetID=$(az network vnet subnet show \
         --resource-group ${PROJ}-${COMPONENT}-rg \
@@ -246,7 +246,7 @@ for COMPONENT in source destination; do
     tr -d '"') && \
     echo "got subnet ID ref."
 
-  #  Disable PE network policies
+#  Disable PE network policies
 
   echo -n "disabling PE network policies on ${COMPONENT}-subnet.."
   az network vnet subnet update \
@@ -255,7 +255,7 @@ for COMPONENT in source destination; do
     --output none && \
     echo " done."
 
-  # creating PE
+# creating PE
 
   echo "creating PE."
   peID=$(az network private-endpoint create \
@@ -268,101 +268,44 @@ for COMPONENT in source destination; do
     --connection-name "${PROJ}shared" \
     --query "id" | tr -d '"')  && \
 
-  # private DNS setup
+# private DNS setup
 
-  storageAccountSuffix=$(az cloud show \
-    --query "suffixes.storageEndpoint" | tr -d '"')
-  echo "storage account suffix: ${storageAccountSuffix}"
-
-  dnsZoneName="privatelink.file.$storageAccountSuffix"
-  echo "DNS zone name: ${dnsZoneName}"
-
-  possibleDnsZones=$(az network private-dns zone list \
-        --query "[?name == '${dnsZoneName}'].id" \
-        --output tsv)
-  echo "possible DNS zones: ${possibleDnsZones}"
-
-  if [[ ! -z "${possibleDnsZones}" ]];
-  then
-    for possibleDnsZone in ${possibleDnsZones}; 
-    do
-      possibleResourceGroupName=$(az resource show \
-        --ids ${possibleDnsZone} \
-        --query "resourceGroup" | \
-        tr -d '"')
-      echo "possible RG name: ${possibleResourceGroupName}"
-
-      link=$(az network private-dns link vnet list \
-        --resource-group ${possibleResourceGroupName} \
-        --zone-name ${dnsZoneName} \
-        --query "[?virtualNetwork.id == '${COMPONENT}-net'].id" \
-        --output tsv)
-      echo "link: ${link}"
-
-      if [[ -z "${link}" ]]
-      then
-        echo "1" >/dev/null
-      else
-        dnsZoneResourceGroup=${possibleResourceGroupName}
-        dnsZone=${possibleDnsZone}
-        echo "RG name: ${dnsZoneResourceGroup}"
-        echo "DNS zone: ${dnsZone}"
-        break
-      fi  
-   done
-  else
-    echo "no existing private DNS zones found."
-  fi
-
-  # if we haven't found a DNS zone, go create one
-
-  if [[ -z "${dnsZone}" ]]
-  then
-    echo "creating new DNS zone."
-    dnsZone=$(az network private-dns zone create \
-      --resource-group ${RG} \
-      --name "shared" \
-      --query "id" | \
-      tr -d '"')
-    echo "DNS zone: ${dnsZone}"
-    
-    az network private-dns link vnet create \
-      --resource-group ${RG} \
-      --zone-name ${dnsZoneName} \
-      --name "shared" \
-      --virtual-network ${COMPONENT}-vnet \
-      --registration-enabled false \
-      --output none
-  fi
-
+  echo -n "linking private DNS to vnet.."
+  az network private-dns link vnet create \
+    --resource-group ${RG} \
+    --name ${PROJ}-${COMPONENT}-link \
+    --zone-name "${COMPONENT}.local" \
+    --virtual-network ${COMPONENT}-vnet \
+    --registration-enabled false \
+    --output none
+  echo " done."
+  
 # Link PE and private DNS
 
-peNIC=$(az network private-endpoint show \
-        --ids ${peID} \
-        --query "networkInterfaces[0].id" | \
+  peNIC=$(az network private-endpoint show \
+    --ids ${peID} \
+    --query "networkInterfaces[0].id" | \
     tr -d '"')
+  echo "PE NIC identified."
 
-peIP=$(az network nic show \
-        --ids ${peNIC} \
-        --query "ipConfigurations[0].privateIpAddress" | \
+  peIP=$(az network nic show \
+    --ids ${peNIC} \
+    --query "ipConfigurations[0].privateIpAddress" | \
     tr -d '"')
+  echo "PE IP: ${peIP}."
 
-az network private-dns record-set a create \
-        --resource-group ${RG} \
-        --zone-name "shared" \
-        --name ${PROJ}shared \
-        --output none
+  az network private-dns record-set a create \
+    --resource-group ${RG} \
+    --zone-name "shared.local" \
+    --name ${PROJ}sharedpe \
+    --output none
 
-az network private-dns record-set a add-record \
-        --resource-group ${RG} \
-        --zone-name "shared" \
-        --record-set-name ${PROJ}shared \
-        --ipv4-address $peIP \
-        --output none
-
-done
-
-exit 0
+  az network private-dns record-set a add-record \
+    --resource-group ${RG} \
+    --zone-name "shared.local" \
+    --record-set-name ${PROJ}sharedpe \
+    --ipv4-address $peIP \
+    --output none
 
 # Create public IPs and retrieve the addr
 
