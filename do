@@ -194,6 +194,11 @@ else
   echo "storage account ${PROJ}shared exists and presumed correct."
 fi
 
+# Do all the networking things
+
+for COMPONENT in shared source destination; do
+  RG=${PROJ}-${COMPONENT}-rg
+
 # Create vnets
 
   echo -n "deploying ${COMPONENT}-vnet.."
