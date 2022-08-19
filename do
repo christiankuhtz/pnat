@@ -69,7 +69,7 @@ echo "found readable config file (${CONFIG})."
 # emit set SSH port, can be changed in config file
 
 echo "SSH port: ${PORT[ssh]}"
-
+echo "Wireguard port: ${PORT[wireguard]}"
 
 # Advise on creds
 
