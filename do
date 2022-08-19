@@ -334,7 +334,7 @@ for COMPONENT in source destination; do
       --registration-enabled false \
       --output none
     
-    dnsZoneResourceGroup=${virtualNetworkResourceGroupName}
+    dnsZoneResourceGroup=${RG}
   fi
 
   dnsZone=$(az network private-dns zone create \
