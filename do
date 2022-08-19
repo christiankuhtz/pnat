@@ -12,8 +12,10 @@ declare -A PORT
 declare -A SUBNETSUFFIX
 declare -A PRIVIPADDR
 # only /24 supported
-PREFIX[source]=100.64.0
-PREFIX[destination]=100.64.1
+#PREFIX[source]=100.64.0
+#PREFIX[destination]=100.64.1
+PREFIX[source]=192.168.0
+PREFIX[destination]=192.168.1
 PREFIXLEN[source]=/24
 PREFIXLEN[destination]=/24
 MYIPADDR=`curl -fs 'https://api.ipify.org' | cut -f1,2,3 -d.`.0/24
