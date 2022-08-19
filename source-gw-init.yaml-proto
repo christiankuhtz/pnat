@@ -13,6 +13,7 @@ write_files:
     path: /etc/ssh/sshd_config
     append: true
 runcmd:
+  - unminimize
   - restart ssh
 power_state:
   mode: reboot
