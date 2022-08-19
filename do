@@ -281,21 +281,22 @@ for COMPONENT in source destination; do
   for possibleDnsZone in ${possibleDnsZones}; 
   do
     possibleResourceGroupName=$(az resource show \
-            --ids $possibleDnsZone \
+            --ids ${possibleDnsZone} \
             --query "resourceGroup" | \
         tr -d '"')
     echo "possible RG name: ${possibleResourceGroupName}"
 
     link=$(az network private-dns link vnet list \
-            --resource-group $possibleResourceGroupName \
-            --zone-name $dnsZoneName \
-            --query "[?virtualNetwork.id == '$virtualNetwork'].id" \
+            --resource-group ${possibleResourceGroupName} \
+            --zone-name ${dnsZoneName} \
+            --query "[?virtualNetwork.id == '${COMPONENT}-net'].id" \
             --output tsv)
     echo "link: ${link}"
 
     if [[ ! -z "${link}" ]]
-        dnsZoneResourceGroup=$possibleResourceGroupName
-        dnsZone=$possibleDnsZone
+    then
+        dnsZoneResourceGroup=${possibleResourceGroupName}
+        dnsZone=${possibleDnsZone}
         echo "RG name: ${dnsZoneResourceGroup}"
         echo "DNS zone: ${dnsZone}"
         break
