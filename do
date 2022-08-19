@@ -247,7 +247,7 @@ for COMPONENT in source destination; do
     --ids ${subnetID}
     --disable-private-endpoint-network-policies \
     --output none 
-  "disabled PE network policies on ${subnetID}"
+  echo "disabled PE network policies on ${subnetID}"
 
   pe=$(az network private-endpoint create \
     --resource-group ${PROJ}-${COMPONENT}-rg \
@@ -257,6 +257,7 @@ for COMPONENT in source destination; do
     --group-id "file" \
     --connection-name "${PROJ}shared" \
     --query "id" | tr -d '"')
+  echo "PE ${pe} created."
 
   storageAccountSuffix=$(az cloud show \
     --query "suffixes.storageEndpoint" | tr -d '"')
