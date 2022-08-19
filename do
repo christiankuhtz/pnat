@@ -243,11 +243,12 @@ for COMPONENT in source destination; do
 
   #  Disable PE network policies
 
+  echo -n "disabling PE network policies on ${COMPONENT}-subnet.."
   az network vnet subnet update \
     --ids ${subnetID} \
     --disable-private-endpoint-network-policies true \
     --output none && \
-  echo "disabled PE network policies on ${subnetID}"
+    echo " done."
 
   echo -n "creating PE.. "
   pe=$(az network private-endpoint create \
