@@ -1,6 +1,7 @@
 #cloud-config
 package_upgrade: true
 packages:
+  - unattended-upgrades
   - apt-config-auto-update
 write_files:
   - content: |
@@ -23,7 +24,7 @@ write_files:
     path: /etc/apt/apt.conf.d/50unattended-upgrades
     append: true
 runcmd:
-  - systemctl restart ssh
+  - [ systemctl, restart, ssh ]
 power_state:
   mode: reboot
   timeout: 2

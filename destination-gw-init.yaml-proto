@@ -29,8 +29,9 @@ write_files:
     path: /etc/apt/apt.conf.d/50unattended-upgrades
     append: true
 runcmd:
-  - systemctl restart ssh
-power_state:
+  - [ systemctl, restart, ssh ]
+  - mkdir /run/wireguard
+ power_state:
   mode: reboot
   timeout: 2
   delay: now

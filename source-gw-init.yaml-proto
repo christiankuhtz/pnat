@@ -1,6 +1,7 @@
 #cloud-config
 package_upgrade: true
 packages:
+  - unattended-upgrades
   - apt-config-auto-update
   - wireguard
 write_files:
@@ -28,7 +29,9 @@ write_files:
     path: /etc/apt/apt.conf.d/50unattended-upgrades
     append: true
 runcmd:
-  - systemctl restart ssh
+  - [ systemctl, restart, ssh ]
+  - mkdir /run/wireguard
+  - 'wg genkey | sudo tee /etc/wireguard/private.key > /run/wireguard/private.base64'
 power_state:
   mode: reboot
   timeout: 2
