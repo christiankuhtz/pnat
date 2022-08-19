@@ -1,0 +1,38 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - unattended-upgrades
+  - apt-config-auto-update
+  - wireguard
+write_files:
+  - content: |
+      net.ipv4.ip_forward=1
+    path: /etc/sysctl.d/99-custom.conf
+    permissions: '0644'
+  - content: |
+      Port 49444
+      TCPKeepAlive yes
+    path: /etc/ssh/sshd_config
+    append: true
+  - content: |
+      Unattended-Upgrade::Automatic-Reboot "true";
+      Unattended-Upgrade::Remove-Unused-Dependencies "true";
+      Unattended-Upgrade::SyslogEnable "true";
+      Unattended-Upgrade::Allowed-Origins {
+        "${distro_id}:${distro_codename}";
+        "${distro_id}:${distro_codename}-security";
+        "${distro_id}ESMApps:${distro_codename}-apps-security";
+        "${distro_id}ESM:${distro_codename}-infra-security";
+        "${distro_id}:${distro_codename}-updates";
+        "${distro_id}:${distro_codename}-backports";
+      };
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    append: true
+runcmd:
+  - [ systemctl, restart, ssh ]
+  - mkdir /run/wireguard
+ power_state:
+  mode: reboot
+  timeout: 2
+  delay: now
+  message: "cleanup reboot"    

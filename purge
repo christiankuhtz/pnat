@@ -1,0 +1,91 @@
+#!/bin/zsh
+#set -x 
+
+# "known good defaults", can be modified in CONFIG file
+
+PROJ=pnat
+LOCATION=westcentralus
+declare -A PREFIX
+declare -A PREFIXLEN
+declare -A PIPADDR
+declare -A PORT
+declare -A SUBNETSUFFIX
+declare -A PRIVIPADDR
+# only /24 supported
+PREFIX[source]=100.64.0
+PREFIX[destination]=100.64.1
+PREFIXLEN[source]=/24
+PREFIXLEN[destination]=/24
+MYIPADDR=`dig +short myip.opendns.com @resolver1.opendns.com`/32
+echo "my IP address is ${MYIPADDR}"
+PORT[ssh]=22
+PORT[wireguard]=51820
+SUBNETSUFFIX[gw]=16
+SUBNETSUFFIX[vm]=17
+CONFIG=./config
+ACCELNET="--accelerated-networking"
+VMSKU=Standard_D2s_v5
+LOG=${PROJ}.log
+
+
+# Check if Azure CLI exists
+
+az 2>%1 >/dev/null
+if [ $? -eq 0 ]
+then
+  echo "Azure CLI found."
+else
+  echo "Azure CLI required. Install Azure CLI or check installation."
+fi
+
+# check if CONFIG file exists and explain which parameters were set
+
+if [[ -a ${CONFIG} ]]
+then
+  if [[ -r ${CONFIG} ]]
+  then 
+    source ${CONFIG}
+  else
+    echo "config file (${CONFIG}) unreadable. aborting." && exit 1
+  fi
+else
+  echo "config file (${CONFIG}) missing. aborting." && exit 1
+fi
+
+# Advise on location
+
+if [[ -z ${LOCATION} ]]
+then
+  echo -n "LOCATION not found in ${CONFIG}. Using default "
+else
+  echo -n "LOCATION found in ${CONFIG}. Using "
+fi
+echo "region ${LOCATION}."
+
+# Advise on log file
+
+if [[ -a ${LOG} ]]
+then
+  echo "${LOG} exists, will be overwritten."
+else
+  echo "${LOG} will be created."
+fi
+
+# Check if resource group exists, kill if it does
+
+for COMPONENT in source destination; do
+  RG=${PROJ}-${COMPONENT}-rg
+  echo -n "rg ${RG} does"
+  if [ "`az group exists --name ${RG}`" = "true" ];
+  then
+    echo -n " exist.. deleting.."
+    az group delete \
+    --resource-group ${RG} \
+    --yes \
+    --only-show-errors \
+    >${LOG} 2>&1 || exit 1
+  else
+    echo -n "n't exist.."
+  fi
+done
+
