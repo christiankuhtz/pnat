@@ -191,7 +191,7 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
       >>${LOG} 2>&1 || exit 1
     echo " done."
 else 
-  echo "storage account ${PROJ}shared exists and presumed correct."
+  echo " exists and presumed correct."
 fi
 
 # Do all the networking things
@@ -249,6 +249,7 @@ for COMPONENT in source destination; do
     --output none && \
   echo "disabled PE network policies on ${subnetID}"
 
+  echo -n "creating PE.. "
   pe=$(az network private-endpoint create \
     --resource-group ${RG} \
     --name ${PROJ}shared-pe \
@@ -257,7 +258,7 @@ for COMPONENT in source destination; do
     --group-id "file" \
     --connection-name "${PROJ}shared" \
     --query "id" | tr -d '"') && \
-  echo "PE ${pe} created."
+  echo " done."
 
   storageAccountSuffix=$(az cloud show \
     --query "suffixes.storageEndpoint" | tr -d '"')
