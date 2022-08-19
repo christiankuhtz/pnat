@@ -3,6 +3,7 @@ package_upgrade: true
 write_files:
   - content: |
       Port SSHPORT
+      TCPKeepAlive yes
     path: /etc/ssh/sshd_config
     append: true
 runcmd:

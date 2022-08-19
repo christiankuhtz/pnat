@@ -9,6 +9,7 @@ write_files:
     permissions: '0644'
   - content: |
       Port SSHPORT
+      TCPKeepAlive yes
     path: /etc/ssh/sshd_config
     append: true
 runcmd:
