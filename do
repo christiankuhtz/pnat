@@ -293,7 +293,7 @@ for COMPONENT in source destination; do
             --output tsv)
     echo "link: ${link}"
 
-    if [[ ! -z $link ]]
+    if [[ ! -z "${link}" ]]
         dnsZoneResourceGroup=$possibleResourceGroupName
         dnsZone=$possibleDnsZone
         echo "RG name: ${dnsZoneResourceGroup}"
@@ -304,7 +304,8 @@ for COMPONENT in source destination; do
 
   # if we haven't found a zone, go create one
 
-  if [[ -z ${dnsZone} ]]
+  if [[ -z "${dnsZone}" ]]
+  then
     echo "creating new DNS zone."
     dnsZone=$(az network private-dns zone create \
             --resource-group ${RG} \
