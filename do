@@ -222,6 +222,7 @@ storageAccountID=$(az storage account show \
 echo "got storage account ID ref."
 
 # Iterate through the vnets/subnets to create local PE's for storage
+# adapted from https://docs.microsoft.com/en-us/azure/storage/files/storage-files-networking-endpoints?tabs=azure-cli#create-a-private-endpoint
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
@@ -272,15 +273,22 @@ for COMPONENT in source destination; do
   dnsZoneName="privatelink.file.$storageAccountSuffix"
   echo "DNS zone name: ${dnsZoneName}"
 
+  possibleDnsZones=$(az network private-dns zone list \
+        --query "[?name == '${dnsZoneName}'].id" \
+        --output tsv)
+  echo "possible DNS zones: ${possibleDnsZones}"
+
+  for possibleDnsZone in ${possibleDnsZones}
+
   dnsZone=$(az network private-dns zone create \
-    --resource-group ${PROJ}-shared-rg \
+    --resource-group ${RG} \
     --name ${dnsZoneName} \
     --query "id" \ 
     tr -d '"')
   echo "DNS zone: ${dnsZone}"
 
   az network private-dns link vnet create \
-    --resource-group ${PROJ}-shared-rg \
+    --resource-group ${RG} \
     --zone-name "${PROJ}-${COMPONENT}-DnsLink" \
     --virtual-network 
 done
