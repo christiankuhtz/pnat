@@ -177,22 +177,20 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
     --enable-large-file-share \
     --quiet \
     >>${LOG} 2>&1 || exit 1
-fi
-echo " done."
-
+    echo " done." 
 
 # Create share
 
-echo -n "creating share.."
-az storage share-rm create \
-  --resource-group ${RG} \
-  --name share \
-  --storage-account ${PROJ}shared \
-  --enabled-protocols smb \
-  --quota 100
-  >>${LOG} 2>&1 || exit 1
-echo " done."
-
+    echo -n "creating share.."
+    az storage share-rm create \
+      --resource-group ${RG} \
+      --name share \
+      --storage-account ${PROJ}shared \
+      --enabled-protocols smb \
+      --quota 100
+      >>${LOG} 2>&1 || exit 1
+    echo " done."
+fi
 
 # Create vnets
 
@@ -205,6 +203,7 @@ echo " done."
     --subnet-prefixes ${PREFIX[${COMPONENT}]}.0${PREFIXLEN[${COMPONENT}]} \
     >>${LOG} 2>&1 || exit 1
   echo " done."
+
 
 # Get storage account ID 
 
