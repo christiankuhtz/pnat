@@ -196,7 +196,7 @@ fi
 
 # Do all the networking things
 
-for COMPONENT in shared source destination; do
+for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
 
 # Create vnets
@@ -218,8 +218,8 @@ storageAccountID=$(az storage account show \
         --resource-group ${PROJ}-shared-rg \
         --name ${PROJ}shared \
         --query "id" | \
-    tr -d '"')
-echo "storage account ID ref: ${storageAccountID}"
+    tr -d '"') && \
+echo "got storage account ID ref."
 
 for COMPONENT in source destination; do
   # Get virtual network ID
@@ -228,8 +228,8 @@ for COMPONENT in source destination; do
           --resource-group ${PROJ}-${COMPONENT}-rg \
           --name ${COMPONENT}-vnet \
           --query "id" | \
-      tr -d '"')
-  echo "vnet ID ref: ${vnetID}"
+      tr -d '"') && \
+  echo "got vnet ID ref."
 
   # Get subnet ID
   
@@ -238,25 +238,25 @@ for COMPONENT in source destination; do
         --vnet-name ${COMPONENT}-vnet \
         --name ${COMPONENT}-subnet \
         --query "id" | \
-    tr -d '"')
-    echo "subnet ID ref: ${subnetID}"
+    tr -d '"') && \
+    echo "got subnet ID ref."
 
   #  Disable PE network policies
 
   az network vnet subnet update \
     --ids ${subnetID}
-    --disable-private-endpoint-network-policies \
-    --output none 
+    --disable-private-endpoint-network-policies true \
+    --output none && \
   echo "disabled PE network policies on ${subnetID}"
 
   pe=$(az network private-endpoint create \
-    --resource-group ${PROJ}-${COMPONENT}-rg \
+    --resource-group ${RG} \
     --name ${PROJ}shared-pe \
     --subnet ${COMPONENT}-subnet \
     --private-connection-resource-id ${storageAccountID} \
     --group-id "file" \
     --connection-name "${PROJ}shared" \
-    --query "id" | tr -d '"')
+    --query "id" | tr -d '"') && \
   echo "PE ${pe} created."
 
   storageAccountSuffix=$(az cloud show \
