@@ -129,37 +129,70 @@ done
 echo " done."
 
 
-# Check if resource group exists, delete if it does
+# Check if resource group exists, create it if it does not or delete if it does, unless it's shared rg
 
-for COMPONENT in source destination; do
+for COMPONENT in shared source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   echo -n "rg ${RG} does"
-  if [ "`az group exists --name ${RG}`" = "true" ];
+  if [[ "`az group exists --name ${RG}`" == "true" ]]; 
   then
-    echo -n " exist.. deleting.."
-    az group delete \
-    --resource-group ${RG} \
-    --yes \
-    --only-show-errors \
-    >${LOG} 2>&1 || exit 1
-  echo " done."
+    echo -n " exist.."
+    if [[ "${COMPONENT}" == "shared" ]]; 
+    then
+      echo " preserved."
+    else
+      echo -n " deleting.."
+      az group delete \
+        --resource-group ${RG} \
+        --yes \
+        --only-show-errors \
+        >${LOG} 2>&1 || exit 1
+    fi
   else
-    echo "n't exist."
+    echo -n "n't exist.."
+  fi
+  if [[ "`az group exists --name ${RG}`" == "false" ]]; 
+  then
+    echo -n " creating.."
+    az group create \
+      --name ${RG} \
+      --location ${LOCATION} \
+      >>${LOG} 2>&1 || exit 1
+    echo " done."
   fi
 done
 
 
-# Create clean resource group
+# Create shared storage
 
-for COMPONENT in source destination; do
-  RG=${PROJ}-${COMPONENT}-rg
-  echo -n "creating rg ${RG}.."
-  az group create \
-    --name ${RG} \
+RG=${PROJ}-shared-rg
+echo -n "creating storage account ${PROJ}shared.."
+if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" == "true" ]]; then
+  az storage account create \
+    --resource-group ${RG} \
     --location ${LOCATION} \
-    >>${LOG} 2>&1 || exit 1
-  echo " done."
+    --name ${PROJ}shared \
+    --sku Premium_LRS \
+    --kind FileStorage \
+    --enable-large-file-share \
+    --quiet
+fi
+echo " done."
 
+
+# Create share
+
+echo -n "creating share.."
+az storage share-rm create \
+  --resource-group ${RG} \
+  --name share \
+  --storage-account ${PROJ}shared \
+  --enabled-protocols smb \
+  --quota 1 \
+  --root-squash AllSquash
+echo " done."
+
+exit 0
 
 # Create vnets
 
@@ -173,6 +206,64 @@ for COMPONENT in source destination; do
     >>${LOG} 2>&1 || exit 1
   echo " done."
 
+# Get storage account ID 
+
+storageAccountID=$(az storage account show \
+        --resource-group ${PROJ}-shared-rg \
+        --name ${PROJ}shared \
+        --query "id" | \
+    tr -d '"')
+
+for COMPONENT in source destination; do
+  # Get virtual network ID
+  
+  vnetID=$(az network vnet show \
+          --resource-group ${PROJ}-${COMPONENT}-rg \
+          --name ${COMPONENT}-vnet \
+          --query "id" | \
+      tr -d '"')
+
+  # Get subnet ID
+  
+  subnetID=$(az network vnet subnet show \
+        --resource-group ${PROJ}-${COMPONENT}-rg \
+        --vnet-name ${COMPONENT}-vnet \
+        --name ${COMPONENT}-subnet \
+        --query "id" | \
+    tr -d '"')
+  
+  #  Disable PE network policies
+
+  az network vnet subnet update \
+    --ids ${subnetID}
+    --disable-private-endpoint-network-policies \
+    --output none
+
+  pe=$(az network private-endpoint create \
+    --resource-group ${PROJ}-${COMPONENT}-rg \
+    --name ${PROJ}shared-pe \
+    --subnet ${COMPONENT}-subnet \
+    --private-connection-resource-id ${storageAccountID} \
+    --group-id "file" \
+    --connection-name "${PROJ}shared" \
+    --query "id" | tr -d '"')
+
+  storageAccountSuffix=$(az cloud show \
+    --query "suffixes.storageEndpoint" | tr -d '"')
+  
+  dnsZoneName="privatelink.file.$storageAccountSuffix"
+
+  dnsZone=$(az network private-dns zone create \
+    --resource-group ${PROJ}-shared-rg \
+    --name ${dnsZoneName} \
+    --query "id" \ 
+    tr -d '"')
+
+  az network private-dns link vnet create \
+    --resource-group ${PROJ}-shared-rg \
+    --zone-name "${PROJ}-${COMPONENT}-DnsLink" \
+    --virtual-network 
+done
 
 # Create public IPs and retrieve the addr
 
