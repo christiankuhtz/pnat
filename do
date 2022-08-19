@@ -63,6 +63,9 @@ else
 fi
 echo "found readable config file (${CONFIG})."
 
+
+# emit set SSH port, can be changed in config file
+
 echo "SSH port: ${PORT[ssh]}"
 
 
