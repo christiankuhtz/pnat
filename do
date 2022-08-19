@@ -193,7 +193,6 @@ az storage share-rm create \
   >>${LOG} 2>&1 || exit 1
 echo " done."
 
-exit 0
 
 # Create vnets
 
