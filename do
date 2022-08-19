@@ -319,7 +319,7 @@ for COMPONENT in source destination; do
   if [[ -z "${dnsZone}" ]]
   then
     echo "creating new DNS zone."
-    dnsZone=$(az network private-dns zone create 
+    dnsZone=$(az network private-dns zone create \
       --resource-group ${RG} \
       --name ${dnsZoneName} \
       --query "id" | \
