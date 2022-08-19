@@ -33,15 +33,6 @@ VMSKU=Standard_D2s_v5
 UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-minimal-jammy:minimal-22_04-lts:22.04.202208100
 LOG=${PROJ}.log
 
-# Generate cloud-init .yaml's from -proto's
-
-echo -n "Generate cloud-init .yaml's for VM's from .yaml-proto's.."
-for COMPONENT in source destination; do 
-  for TYPE in gw vm; do
-    sed -e "s/SSHPORT/${PORT[ssh]}/" ${COMPONENT}-${TYPE}-init.yaml-proto > ${COMPONENT}-${TYPE}-init.yaml
-  done
-done
-echo "done."
 
 
 # Check if Azure CLI exists
@@ -53,6 +44,7 @@ then
 else
   echo "Azure CLI required. Install Azure CLI or check installation."
 fi
+
 
 # check if CONFIG file exists and explain which parameters were set
 
@@ -70,6 +62,7 @@ fi
 
 echo "SSH port: ${PORT[ssh]}"
 
+
 # Advise on creds
 
 if [[ -z ${ADMINUSER} ]]
@@ -81,6 +74,7 @@ then
   echo "ADMINPASS parameter in file ${CONFIG} missing (must match Azure password rules). aborting." && exit 1
 fi
 echo "credentials found in ${CONFIG}. (${ADMINUSER})"
+
 
 # Advise on location
 
@@ -101,18 +95,31 @@ else
   echo "${LOG} will be created."
 fi
 
-# Check if yaml configs exist
+
+# Check if yaml-proto configs exist
 
 for COMPONENT in source destination; do
   for TYPE in vm gw; do
-    if [[ -r ${COMPONENT}-${TYPE}-init.yaml ]]
+    if [[ -r ${COMPONENT}-${TYPE}-init.yaml-proto ]]
     then
-      echo "found readable ${COMPONENT}-${TYPE}-init.yaml."
+      echo "found readable ${COMPONENT}-${TYPE}-init.yaml-proto."
     else
-      echo "cloud-init YAML for ${COMPONENT}-${TYPE} doesn't exist. exiting." && exit 1
+      echo "cloud-init prototype YAML for ${COMPONENT}-${TYPE} doesn't exist. exiting." && exit 1
     fi
   done
 done
+
+
+# Generate cloud-init .yaml's from -proto's
+
+echo -n "Generate cloud-init .yaml's for VM's from .yaml-proto's.."
+for COMPONENT in source destination; do 
+  for TYPE in gw vm; do
+    sed -e "s/SSHPORT/${PORT[ssh]}/" ${COMPONENT}-${TYPE}-init.yaml-proto > ${COMPONENT}-${TYPE}-init.yaml
+  done
+done
+echo "done."
+
 
 # Check if resource group exists, kill if it does
 
@@ -131,6 +138,7 @@ for COMPONENT in source destination; do
     echo -n "n't exist.."
   fi
 
+
 # Create clean resource group
 
   echo -n " creating.."
@@ -139,6 +147,7 @@ for COMPONENT in source destination; do
     --location ${LOCATION} \
     >>${LOG} 2>&1 || exit 1
   echo " done."
+
 
 # Create vnets
 
@@ -151,6 +160,7 @@ for COMPONENT in source destination; do
     --subnet-prefixes ${PREFIX[${COMPONENT}]}.0${PREFIXLEN[${COMPONENT}]} \
     >>${LOG} 2>&1 || exit 1
   echo " done."
+
 
 # Create public IPs and retrieve the addr
 
@@ -170,6 +180,7 @@ for COMPONENT in source destination; do
       --query "ipAddress" \
       | sed 's/\"//g'`/32
     echo " done. ${PIPADDR[${COMPONENT}-${TYPE}]}"
+
 
 # Create NSG and NSG rule
 
@@ -196,6 +207,7 @@ for COMPONENT in source destination; do
       >>${LOG} 2>&1 || exit 1
     echo " done. (${MYIPADDR}->${PIPADDR[${COMPONENT}-${TYPE}]}:${PORT[ssh]})"
 
+
 # Create NIC
 
     echo -n "deploying ${COMPONENT}-${TYPE}-nic.."
@@ -215,6 +227,7 @@ for COMPONENT in source destination; do
   done
 done
 
+
 # Make sure we know who the opposite end is
 
 for COMPONENT in source destination; do
@@ -225,6 +238,7 @@ for COMPONENT in source destination; do
   else
     OTHER="source"
   fi
+
 
 # Allow wireguard between gateways
 
@@ -244,6 +258,7 @@ for COMPONENT in source destination; do
     >>${LOG} 2>&1 || exit 1
   echo " done. (${PIPADDR[${OTHER}-gw]}->${PIPADDR[${COMPONENT}-gw]}:${PORT[wireguard]})"
 done
+
 
 # Create our VMs
 
@@ -265,6 +280,7 @@ for COMPONENT in source destination; do
   done
 done
 
+
 # Show what was configured
 
 for COMPONENT in source destination; do
@@ -274,6 +290,7 @@ for COMPONENT in source destination; do
   done
 done
 
-# Everything _should_ be done by the time we get here.
+
+# Everything _should_ be done by the time we get here. "GOOD LUCK."
 
 echo "done."
