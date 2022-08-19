@@ -59,6 +59,7 @@ then
 else
   echo "config file (${CONFIG}) missing. aborting." && exit 1
 fi
+echo "found readable config file (${CONFIG})."
 
 echo "SSH port: ${PORT[ssh]}"
 
