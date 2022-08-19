@@ -139,7 +139,7 @@ for COMPONENT in shared source destination; do
     echo -n " exist.."
     if [[ "${COMPONENT}" == "shared" ]]; 
     then
-      echo " preserved."
+      echo " preserved (no persistent stateful data contained here)."
     else
       echo -n " deleting.."
       az group delete \
