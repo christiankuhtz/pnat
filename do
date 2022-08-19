@@ -221,8 +221,7 @@ storageAccountID=$(az storage account show \
     tr -d '"') && \
 echo "got storage account ID ref."
 
-# Iterate through the vnets/subnets to create local PE's for storage
-# adapted from https://docs.microsoft.com/en-us/azure/storage/files/storage-files-networking-endpoints?tabs=azure-cli#create-a-private-endpoint
+# Iterate through the vnets/subnets to create local PE's for storage and register in private DNS zone
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
