@@ -254,7 +254,7 @@ for COMPONENT in source destination; do
     --output none && \
     echo " done."
 
-  echo -n "creating PE.. "
+  echo "creating PE."
   pe=$(az network private-endpoint create \
     --resource-group ${RG} \
     --name ${PROJ}shared-pe \
@@ -264,7 +264,6 @@ for COMPONENT in source destination; do
     --group-id "file" \
     --connection-name "${PROJ}shared" \
     --query "id" | tr -d '"')  && \
-  echo " done."
 
   storageAccountSuffix=$(az cloud show \
     --query "suffixes.storageEndpoint" | tr -d '"')
