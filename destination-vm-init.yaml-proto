@@ -6,6 +6,10 @@ write_files:
       TCPKeepAlive yes
     path: /etc/ssh/sshd_config
     append: true
+  - content: |
+      Unattended-Upgrade::Automatic-Reboot "false";
+    path: /usr/share/unattended-upgrades/50unattended-upgrades
+    append: true
 runcmd:
   - systemctl restart ssh
 power_state:
