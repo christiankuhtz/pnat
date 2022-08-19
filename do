@@ -327,9 +327,9 @@ for COMPONENT in source destination; do
     echo "DNS zone: ${dnsZone}"
     
     az network private-dns link vnet create \
-      --resource-group ${$RG} \
+      --resource-group ${RG} \
       --zone-name ${dnsZoneName} \
-      --name "${COMPONENT}-vnet-DnsLink" \
+      --name "shared" \
       --virtual-network ${COMPONENT}-vnet \
       --registration-enabled false \
       --output none
