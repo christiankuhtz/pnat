@@ -137,7 +137,7 @@ for COMPONENT in source destination; do
     >${LOG} 2>&1 || exit 1
   echo " done."
   else
-    echo -n "n't exist.."
+    echo "n't exist."
   fi
 done
 
