@@ -190,6 +190,8 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
       --quota 100 \
       >>${LOG} 2>&1 || exit 1
     echo " done."
+else 
+  echo "storage account ${PROJ}shared exists and presumed correct."
 fi
 
 # Create vnets
