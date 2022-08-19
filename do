@@ -123,7 +123,7 @@ done
 echo -n "generate cloud-init .yaml's for VM's from .yaml-proto's.."
 for COMPONENT in source destination; do 
   for TYPE in gw vm; do
-    sed -e "s/SSHPORT/${PORT[ssh]}/" ${COMPONENT}-${TYPE}-init.yaml-proto > ${COMPONENT}-${TYPE}-init.yaml
+    sed -e "s/SSHPORT/${PORT[ssh]}/" ${COMPONENT}-${TYPE}-init.yaml-proto > ${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
   done
 done
 echo " done."
@@ -175,7 +175,8 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
     --sku Premium_LRS \
     --kind FileStorage \
     --enable-large-file-share \
-    --quiet
+    --quiet \
+    >>${LOG} 2>&1 || exit 1
 fi
 echo " done."
 
@@ -188,8 +189,8 @@ az storage share-rm create \
   --name share \
   --storage-account ${PROJ}shared \
   --enabled-protocols smb \
-  --quota 1 \
-  --root-squash AllSquash
+  --quota 100
+  >>${LOG} 2>&1 || exit 1
 echo " done."
 
 exit 0
