@@ -37,12 +37,14 @@ LOG=${PROJ}.log
 
 # Check if Azure CLI exists
 
+echo -n "checking for Azure CLI.."
 az 2>%1 >/dev/null
 if [ $? -eq 0 ]
 then
-  echo "Azure CLI found."
+  echo " found."
 else
-  echo "Azure CLI required. Install Azure CLI or check installation."
+  echo " not found.. Install Azure CLI or check installation."
+  exit 1
 fi
 
 
