@@ -122,7 +122,7 @@ done
 echo "done."
 
 
-# Check if resource group exists, kill if it does
+# Check if resource group exists, delete if it does
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
@@ -135,16 +135,18 @@ for COMPONENT in source destination; do
     --yes \
     --only-show-errors \
     >${LOG} 2>&1 || exit 1
+  echo " done."
   else
     echo -n "n't exist.."
   fi
 done
 
+
 # Create clean resource group
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
-  echo -n " creating.."
+  echo -n "creating rg ${RG}.."
   az group create \
     --name ${RG} \
     --location ${LOCATION} \
