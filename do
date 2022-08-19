@@ -112,7 +112,7 @@ done
 
 # Generate cloud-init .yaml's from -proto's
 
-echo -n "Generate cloud-init .yaml's for VM's from .yaml-proto's.."
+echo -n "generate cloud-init .yaml's for VM's from .yaml-proto's.."
 for COMPONENT in source destination; do 
   for TYPE in gw vm; do
     sed -e "s/SSHPORT/${PORT[ssh]}/" ${COMPONENT}-${TYPE}-init.yaml-proto > ${COMPONENT}-${TYPE}-init.yaml
