@@ -187,7 +187,7 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
       --name share \
       --storage-account ${PROJ}shared \
       --enabled-protocols smb \
-      --quota 100
+      --quota 100 \
       >>${LOG} 2>&1 || exit 1
     echo " done."
 fi
