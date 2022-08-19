@@ -258,7 +258,7 @@ for COMPONENT in source destination; do
   # creating PE
 
   echo "creating PE."
-  pe=$(az network private-endpoint create \
+  peID=$(az network private-endpoint create \
     --resource-group ${RG} \
     --name ${PROJ}shared-pe \
     --vnet-name ${COMPONENT}-vnet \
@@ -321,7 +321,7 @@ for COMPONENT in source destination; do
     echo "creating new DNS zone."
     dnsZone=$(az network private-dns zone create \
       --resource-group ${RG} \
-      --name ${dnsZoneName} \
+      --name "shared" \
       --query "id" | \
       tr -d '"')
     echo "DNS zone: ${dnsZone}"
@@ -333,21 +333,33 @@ for COMPONENT in source destination; do
       --virtual-network ${COMPONENT}-vnet \
       --registration-enabled false \
       --output none
-    
-    dnsZoneResourceGroup=${RG}
   fi
 
-  dnsZone=$(az network private-dns zone create \
-    --resource-group ${RG} \
-    --name ${dnsZoneName} \
-    --query "id" \ 
-    tr -d '"')
-  echo "DNS zone: ${dnsZone}"
+# Link PE and private DNS
 
-  az network private-dns link vnet create \
-    --resource-group ${RG} \
-    --zone-name "${PROJ}-${COMPONENT}-DnsLink" \
-    --virtual-network 
+peNIC=$(az network private-endpoint show \
+        --ids ${peID} \
+        --query "networkInterfaces[0].id" | \
+    tr -d '"')
+
+peIP=$(az network nic show \
+        --ids ${peNIC} \
+        --query "ipConfigurations[0].privateIpAddress" | \
+    tr -d '"')
+
+az network private-dns record-set a create \
+        --resource-group ${RG} \
+        --zone-name "shared" \
+        --name ${PROJ}shared \
+        --output none
+
+az network private-dns record-set a add-record \
+        --resource-group ${RG} \
+        --zone-name "shared" \
+        --record-set-name ${PROJ}shared \
+        --ipv4-address $peIP \
+        --output none
+
 done
 
 exit 0
