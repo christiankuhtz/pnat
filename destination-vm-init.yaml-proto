@@ -11,6 +11,7 @@ write_files:
   - content: |
       Unattended-Upgrade::Automatic-Reboot "true";
       Unattended-Upgrade::Remove-Unused-Dependencies "true";
+      Unattended-Upgrade::SyslogEnable "true";
       Unattended-Upgrade::Allowed-Origins {
         "${distro_id}:${distro_codename}";
         "${distro_id}:${distro_codename}-security";
