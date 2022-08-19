@@ -40,7 +40,7 @@ LOG=${PROJ}.log
 # Check if Azure CLI exists
 
 echo -n "checking for Azure CLI.."
-az 2>%1 >/dev/null
+az 2>&1 >/dev/null
 if [ $? -eq 0 ]
 then
   echo " found."
