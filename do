@@ -278,7 +278,51 @@ for COMPONENT in source destination; do
         --output tsv)
   echo "possible DNS zones: ${possibleDnsZones}"
 
-  for possibleDnsZone in ${possibleDnsZones}
+  for possibleDnsZone in ${possibleDnsZones}; 
+  do
+    possibleResourceGroupName=$(az resource show \
+            --ids $possibleDnsZone \
+            --query "resourceGroup" | \
+        tr -d '"')
+    echo "possible RG name: ${possibleResourceGroupName}"
+
+    link=$(az network private-dns link vnet list \
+            --resource-group $possibleResourceGroupName \
+            --zone-name $dnsZoneName \
+            --query "[?virtualNetwork.id == '$virtualNetwork'].id" \
+            --output tsv)
+    echo "link: ${link}"
+
+    if [[ ! -z $link ]]
+        dnsZoneResourceGroup=$possibleResourceGroupName
+        dnsZone=$possibleDnsZone
+        echo "RG name: ${dnsZoneResourceGroup}"
+        echo "DNS zone: ${dnsZone}"
+        break
+    fi  
+  done
+
+  # if we haven't found a zone, go create one
+
+  if [[ -z ${dnsZone} ]]
+    echo "creating new DNS zone."
+    dnsZone=$(az network private-dns zone create \
+            --resource-group ${RG} \
+            --name $dnsZoneName \
+            --query "id" | \
+        tr -d '"')
+    echo "DNS zone: ${dnsZone}"
+    
+    az network private-dns link vnet create \
+            --resource-group ${$RG} \
+            --zone-name $dnsZoneName \
+            --name "${COMPONENT}-vnet-DnsLink" \
+            --virtual-network $${COMPONENT}-vnet \
+            --registration-enabled false \
+            --output none
+    
+    dnsZoneResourceGroup=$virtualNetworkResourceGroupName
+  fi
 
   dnsZone=$(az network private-dns zone create \
     --resource-group ${RG} \
