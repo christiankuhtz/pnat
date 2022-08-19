@@ -309,20 +309,20 @@ for COMPONENT in source destination; do
     echo "creating new DNS zone."
     dnsZone=$(az network private-dns zone create \
             --resource-group ${RG} \
-            --name $dnsZoneName \
+            --name ${dnsZoneName} \
             --query "id" | \
         tr -d '"')
     echo "DNS zone: ${dnsZone}"
     
     az network private-dns link vnet create \
             --resource-group ${$RG} \
-            --zone-name $dnsZoneName \
+            --zone-name ${dnsZoneName} \
             --name "${COMPONENT}-vnet-DnsLink" \
-            --virtual-network $${COMPONENT}-vnet \
+            --virtual-network ${COMPONENT}-vnet \
             --registration-enabled false \
             --output none
     
-    dnsZoneResourceGroup=$virtualNetworkResourceGroupName
+    dnsZoneResourceGroup=${virtualNetworkResourceGroupName}
   fi
 
   dnsZone=$(az network private-dns zone create \
