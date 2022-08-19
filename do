@@ -189,7 +189,7 @@ for COMPONENT in source destination; do
       --name ${COMPONENT}-${TYPE}-pip \
       --query "ipAddress" \
       | sed 's/\"//g'`/32
-    echo " done. ${PIPADDR[${COMPONENT}-${TYPE}]}"
+    echo " done. (${PIPADDR[${COMPONENT}-${TYPE}]})"
 
 
 # Create NSG and NSG rule
