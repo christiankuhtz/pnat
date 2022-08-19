@@ -29,8 +29,19 @@ CONFIG=./config
 ACCELNET="--accelerated-networking"
 VMSKU=Standard_D2s_v5
 #UBUNTUIMAGEURN=UbuntuLTS
-UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-minimal-jammy:minimal-22_04-lts-gen2:22.04.202208100
+#UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-minimal-jammy:minimal-22_04-lts-gen2:22.04.202208100
+UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-minimal-jammy:minimal-22_04-lts:22.04.202208100
 LOG=${PROJ}.log
+
+# Generate cloud-init .yaml's from -proto's
+
+echo -n "Generate cloud-init .yaml's for VM's from .yaml-proto's.."
+for COMPONENT in source destination; do 
+  for TYPE in gw vm; do
+    sed -e "s/SSHPORT/${PORT[ssh]}/" ${COMPONENT}-${TYPE}-init.yaml-proto > ${COMPONENT}-${TYPE}-init.yaml
+  done
+done
+echo "done."
 
 
 # Check if Azure CLI exists
@@ -173,7 +184,7 @@ for COMPONENT in source destination; do
     az network nsg rule create \
       --resource-group ${RG} \
       --nsg-name ${COMPONENT}-${TYPE}-nsg \
-      --name ssh-myip \
+      --name myip \
       --description "Not so wide open ssh" \
       --priority 100 \
       --destination-address-prefixes '*' \

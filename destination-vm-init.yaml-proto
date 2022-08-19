@@ -1,0 +1,13 @@
+#cloud-config
+package_upgrade: true
+write_files:
+  - content: |
+      Port SSHPORT
+    path: /etc/ssh/sshd_config
+    append: true
+runcmd:
+  - restart ssh
+power_state:
+  mode: reboot
+  delay: 1
+  message: "cleanup reboot"
