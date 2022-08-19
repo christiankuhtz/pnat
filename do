@@ -283,7 +283,7 @@ for COMPONENT in source destination; do
     --name ${COMPONENT}-link \
     --zone-name "${COMPONENT}.io" \
     --virtual-network ${COMPONENT}-vnet \
-    --registration-enabled false \
+    --registration-enabled true \
     >>${LOG} 2>&1 || exit 1
   echo " done."
   
