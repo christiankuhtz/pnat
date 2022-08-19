@@ -201,7 +201,7 @@ for COMPONENT in source destination; do
 
 # Create vnets
 
-  echo -n "deploying ${COMPONENT}-vnet.."
+  echo -n "deploying ${COMPONENT}-vnet and ${COMPONENT}-subnet.."
   az network vnet create \
     --resource-group ${RG} \
     --name ${COMPONENT}-vnet \
@@ -254,7 +254,7 @@ for COMPONENT in source destination; do
   pe=$(az network private-endpoint create \
     --resource-group ${RG} \
     --name ${PROJ}shared-pe \
-    --subnet ${COMPONENT}-subnet \
+    --subnet-id ${subnetID} \
     --private-connection-resource-id ${storageAccountID} \
     --group-id "file" \
     --connection-name "${PROJ}shared" \
