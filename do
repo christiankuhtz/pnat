@@ -119,7 +119,7 @@ for COMPONENT in source destination; do
     sed -e "s/SSHPORT/${PORT[ssh]}/" ${COMPONENT}-${TYPE}-init.yaml-proto > ${COMPONENT}-${TYPE}-init.yaml
   done
 done
-echo "done."
+echo " done."
 
 
 # Check if resource group exists, delete if it does
