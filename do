@@ -138,10 +138,12 @@ for COMPONENT in source destination; do
   else
     echo -n "n't exist.."
   fi
-
+done
 
 # Create clean resource group
 
+for COMPONENT in source destination; do
+  RG=${PROJ}-${COMPONENT}-rg
   echo -n " creating.."
   az group create \
     --name ${RG} \
