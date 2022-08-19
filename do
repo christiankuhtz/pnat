@@ -255,6 +255,8 @@ for COMPONENT in source destination; do
     --output none && \
     echo " done."
 
+  # creating PE
+
   echo "creating PE."
   pe=$(az network private-endpoint create \
     --resource-group ${RG} \
@@ -265,6 +267,8 @@ for COMPONENT in source destination; do
     --group-id "file" \
     --connection-name "${PROJ}shared" \
     --query "id" | tr -d '"')  && \
+
+  # private DNS setup
 
   storageAccountSuffix=$(az cloud show \
     --query "suffixes.storageEndpoint" | tr -d '"')
@@ -293,35 +297,37 @@ for COMPONENT in source destination; do
             --output tsv)
     echo "link: ${link}"
 
-    if [[ ! -z "${link}" ]]
+    if [[ -z "${link}" ]]
     then
-        dnsZoneResourceGroup=${possibleResourceGroupName}
-        dnsZone=${possibleDnsZone}
-        echo "RG name: ${dnsZoneResourceGroup}"
-        echo "DNS zone: ${dnsZone}"
-        break
+      echo "1" >/dev/null
+    else
+      dnsZoneResourceGroup=${possibleResourceGroupName}
+      dnsZone=${possibleDnsZone}
+      echo "RG name: ${dnsZoneResourceGroup}"
+      echo "DNS zone: ${dnsZone}"
+      break
     fi  
   done
 
-  # if we haven't found a zone, go create one
+  # if we haven't found a DNS zone, go create one
 
   if [[ -z "${dnsZone}" ]]
   then
     echo "creating new DNS zone."
-    dnsZone=$(az network private-dns zone create \
-            --resource-group ${RG} \
-            --name ${dnsZoneName} \
-            --query "id" | \
-        tr -d '"')
+    dnsZone=$(az network private-dns zone create 
+      --resource-group ${RG} \
+      --name ${dnsZoneName} \
+      --query "id" | \
+      tr -d '"')
     echo "DNS zone: ${dnsZone}"
     
     az network private-dns link vnet create \
-            --resource-group ${$RG} \
-            --zone-name ${dnsZoneName} \
-            --name "${COMPONENT}-vnet-DnsLink" \
-            --virtual-network ${COMPONENT}-vnet \
-            --registration-enabled false \
-            --output none
+      --resource-group ${$RG} \
+      --zone-name ${dnsZoneName} \
+      --name "${COMPONENT}-vnet-DnsLink" \
+      --virtual-network ${COMPONENT}-vnet \
+      --registration-enabled false \
+      --output none
     
     dnsZoneResourceGroup=${virtualNetworkResourceGroupName}
   fi
