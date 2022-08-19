@@ -221,7 +221,11 @@ storageAccountID=$(az storage account show \
     tr -d '"') && \
 echo "got storage account ID ref."
 
+# Iterate through the vnets/subnets to create local PE's for storage
+
 for COMPONENT in source destination; do
+  RG=${PROJ}-${COMPONENT}-rg
+
   # Get virtual network ID
   
   vnetID=$(az network vnet show \
@@ -254,7 +258,8 @@ for COMPONENT in source destination; do
   pe=$(az network private-endpoint create \
     --resource-group ${RG} \
     --name ${PROJ}shared-pe \
-    --subnet-id ${subnetID} \
+    --vnet-name ${COMPONENT}-vnet \
+    --subnet ${COMPONENT}-subnet \
     --private-connection-resource-id ${storageAccountID} \
     --group-id "file" \
     --connection-name "${PROJ}shared" \
