@@ -246,7 +246,8 @@ for COMPONENT in source destination; do
   az network vnet subnet update \
     --ids ${subnetID}
     --disable-private-endpoint-network-policies \
-    --output none
+    --output none 
+  "disabled PE network policies on ${subnetID}"
 
   pe=$(az network private-endpoint create \
     --resource-group ${PROJ}-${COMPONENT}-rg \
