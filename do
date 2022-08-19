@@ -29,6 +29,7 @@ CONFIG=./config
 ACCELNET="--accelerated-networking"
 VMSKU=Standard_D2s_v5
 #UBUNTUIMAGEURN=UbuntuLTS
+#UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-minimal-jammy:minimal-22_04-lts-gen2:22.04.202208100
 UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-server-jammy-daily:22_04-daily-lts-gen2:22.04.202208100
 LOG=${PROJ}.log
 
