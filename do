@@ -210,7 +210,7 @@ for COMPONENT in shared source destination; do
     --subnet-prefixes ${PREFIX[${COMPONENT}]}.0${PREFIXLEN[${COMPONENT}]} \
     >>${LOG} 2>&1 || exit 1
   echo " done."
-
+done
 
 # Get storage account ID 
 
@@ -219,6 +219,7 @@ storageAccountID=$(az storage account show \
         --name ${PROJ}shared \
         --query "id" | \
     tr -d '"')
+echo "storage account ID ref: ${storageAccountID}"
 
 for COMPONENT in source destination; do
   # Get virtual network ID
@@ -228,6 +229,7 @@ for COMPONENT in source destination; do
           --name ${COMPONENT}-vnet \
           --query "id" | \
       tr -d '"')
+  echo "vnet ID ref: ${vnetID}"
 
   # Get subnet ID
   
@@ -237,7 +239,8 @@ for COMPONENT in source destination; do
         --name ${COMPONENT}-subnet \
         --query "id" | \
     tr -d '"')
-  
+    echo "subnet ID ref: ${subnetID}"
+
   #  Disable PE network policies
 
   az network vnet subnet update \
