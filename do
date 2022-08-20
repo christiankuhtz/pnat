@@ -396,8 +396,8 @@ for COMPONENT in source destination; do
   echo " done. (${PIPADDR[${OTHER}-gw]}->${PIPADDR[${COMPONENT}-gw]}:${PORT[wireguard]})"
 done
 
-
 # Create our VMs
+echo "> Building VMs"
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
