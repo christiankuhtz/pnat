@@ -131,6 +131,9 @@ echo -n "generate cloud-init .yaml's for VM's from .yaml-proto's.."
 for COMPONENT in source destination; do 
   for TYPE in gw vm; do
     sed -e "s/SSHPORT/${PORT[ssh]}/" ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto > ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
+    mv ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre
+    sed -e "s/COMPONENT/${COMPONENT}/g" ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
+    rm ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre
   done
 done
 echo " done."
