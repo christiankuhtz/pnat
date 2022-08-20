@@ -447,3 +447,5 @@ done
 # Everything _should_ be done by the time we get here. "GOOD LUCK."
 
 echo "done."
+
+exit 0
