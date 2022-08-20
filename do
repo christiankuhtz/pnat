@@ -186,7 +186,6 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
     --sku Premium_LRS \
     --kind FileStorage \
     --enable-large-file-share \
-    --quiet \
     >>${LOG} 2>&1 || exit 1
 
 # Create share
