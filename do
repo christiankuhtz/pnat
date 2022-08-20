@@ -1,5 +1,5 @@
 #!/bin/zsh
-#set -x 
+set -x 
 
 # "known good defaults", can be modified in CONFIG file
 
@@ -199,7 +199,6 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
     --name ${PROJ}shared \
     --sku Premium_LRS \
     --kind FileStorage \
-    --enable-large-file-share \
     >>${LOG} 2>&1 || exit 1
  
 # Create share

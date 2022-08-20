@@ -33,15 +33,10 @@ write_files:
       SMBACCOUNTKEY
     path: /etc/smbcredentials/share.cred
     permissions: '0600'
-  - content: |
-      //share.COMPONENT.io/share /mnt/share cifs nofail,vers=3.0,credentials=/etc/smbcredentials/share.cred,dir_mode=0777,file_mode=0777,serverino
-    path: /etc/fstab
-    append: true    
 runcmd:
   - [ systemctl, restart, ssh ]
   - mkdir /run/wireguard
   - mkdir -p /mnt/share
-  - mount -t cifs //share.COMPONENT.io/share /mnt/share -o vers=3.0,credentials=/etc/smbcredentials/share.cred,dir_mode=0777,file_mode=0777,serverino
   - 'wg genkey | sudo tee /etc/wireguard/private.key > /run/wireguard/private.base64'
 power_state:
   mode: reboot
