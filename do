@@ -39,16 +39,6 @@ BUILDDIR=./build
 FORCE=
 
 
-# Force shared delete?
-
-if [[ -z ${FORCE} ]]
-then
-  echo -n "preserving"
-else
-  echo -n "deleting"
-fi
-echo "shared rg if present."
-
 # Check if Azure CLI exists
 
 echo -n "checking for Azure CLI.."
@@ -87,6 +77,18 @@ echo "found readable config file (${CONFIG})."
 
 echo "SSH port: ${PORT[ssh]}"
 echo "Wireguard port: ${PORT[wireguard]}"
+
+
+# Force shared delete?
+
+if [[ -z ${FORCE} ]]
+then
+  echo -n "preserving"
+else
+  echo -n "deleting"
+fi
+echo "shared rg if present."
+
 
 # Advise on creds
 
