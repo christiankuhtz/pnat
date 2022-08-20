@@ -199,11 +199,11 @@ fi
 
 echo "pushing SMB credentials into .yaml's.."
 for COMPONENT in source destination; do
-  mv ${COMPONENT}-${TYPE}-init.yaml ${COMPONENT}-${TYPE}-init.yaml-pre
-  sed -e "s/SMBACCOUNTNAME/foo/" ${COMPONENT}-${TYPE}-init.yaml-pre > ${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
-  mv ${COMPONENT}-${TYPE}-init.yaml ${COMPONENT}-${TYPE}-init.yaml-pre
-  sed -e "s/SMBACCOUNTKEY/bar/" ${COMPONENT}-${TYPE}-init.yaml-pre > ${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
-  rm *-init.yaml-pre
+  mv ${COMPONENT}-gw-init.yaml ${COMPONENT}-gw-init.yaml-pre
+  sed -e "s/SMBACCOUNTNAME/foo/" ${COMPONENT}-gw-init.yaml-pre > ${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  mv ${COMPONENT}-gw-init.yaml ${COMPONENT}-gw-init.yaml-pre
+  sed -e "s/SMBACCOUNTKEY/bar/" ${COMPONENT}-gw-init.yaml-pre > ${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  rm *gw-init.yaml-pre
 done
 echo " done."
 
