@@ -194,10 +194,23 @@ else
   echo " exists and presumed correct."
 fi
 
+
+# populate SMB credentials on gw VM's
+
+echo "pushing SMB credentials into .yaml's.."
+for COMPONENT in source destination; do
+  mv ${COMPONENT}-${TYPE}-init.yaml ${COMPONENT}-${TYPE}-init.yaml-pre
+  sed -e "s/SMBACCOUNTNAME/foo/" ${COMPONENT}-${TYPE}-init.yaml-pre > ${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
+  mv ${COMPONENT}-${TYPE}-init.yaml ${COMPONENT}-${TYPE}-init.yaml-pre
+  sed -e "s/SMBACCOUNTKEY/bar/" ${COMPONENT}-${TYPE}-init.yaml-pre > ${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
+done
+echo " done."
+
 # Do all the networking things
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
+  echo "> Networking for ${RG}"
 
 # Create vnets
 
