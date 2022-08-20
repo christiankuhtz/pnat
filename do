@@ -440,7 +440,7 @@ echo "> Building VMs"
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   for TYPE in vm gw; do
-    echo -n "creating ${COMPONENT} ${TYPE} VM.."
+    echo -n "creating ${COMPONENT}-${TYPE} VM.."
     az vm create \
       --resource-group ${RG} \
       --name ${COMPONENT}-${TYPE} \
