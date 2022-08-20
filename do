@@ -211,7 +211,6 @@ echo " done."
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
-  echo "> Networking for ${RG}"
 
 # Create vnets
 
@@ -314,6 +313,7 @@ for COMPONENT in source destination; do
   echo " done."
 
 # Create public IPs and retrieve the addr
+  echo "> Rest of networking for ${RG}"
 
   for TYPE in vm gw; do
     echo -n "deploying ${COMPONENT}-${TYPE}-pip.."

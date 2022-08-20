@@ -28,6 +28,11 @@ write_files:
       };
     path: /etc/apt/apt.conf.d/50unattended-upgrades
     append: true
+  - content : |
+      SMBACCOUNTNAME
+      SMBACCOUNTKEY
+    path: /etc/smbcredentials/share.cred
+    permissions: '0600'
 runcmd:
   - [ systemctl, restart, ssh ]
   - mkdir /run/wireguard
