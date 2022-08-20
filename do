@@ -55,7 +55,7 @@ fi
 
 echo "setup build dir ${BUILDDIR}"
 rm -rf ${BUILDDIR} 2>&1 >/dev/null
-mkdir ${BUILDDIR}
+mkdir -p ${BUILDDIR}
 
 # check if CONFIG file exists and explain which parameters were set
 
