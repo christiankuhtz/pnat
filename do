@@ -86,7 +86,7 @@ then
   echo -n "preserving"
 else
   echo -n "deleting log and"
-  rm ${LOG}
+  rm ${LOG} 2>&1 >/dev/null
 fi
 echo " shared rg if present."
 
