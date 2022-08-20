@@ -36,9 +36,18 @@ UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-server-jammy-daily:22_04-daily-lts-gen2
 LOG=${PROJ}.log
 PROTODIR=./proto
 BUILDDIR=./build
-FORCE=false
+FORCE=
 
 
+# Force shared delete?
+
+if [[ -z ${FORCE} ]]
+then
+  echo -n "preserving"
+else
+  echo -n "deleting"
+fi
+echo "shared rg if present."
 
 # Check if Azure CLI exists
 
