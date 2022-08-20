@@ -157,23 +157,24 @@ echo " done."
 for COMPONENT in shared source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   echo -n "rg ${RG} does"
-  if [[ "`az group exists --name ${RG}`" == "true" ]]; 
+  if [[ "`az group exists --name ${RG}`" == "true" ]]
   then
     echo -n " exist.."
-    if [[ "${COMPONENT}" == "shared" && ! -z "${FORCE}" ]]; 
+    if [[ "${COMPONENT}" != "shared" || -n "${FORCE}" ]]
     then
-      echo " preserved."
-    else
       echo -n " deleting.."
       az group delete \
         --resource-group ${RG} \
         --yes \
         --only-show-errors \
         >${LOG} 2>&1 || exit 1
+    else
+      echo " preserved."
     fi
   else
     echo -n "n't exist.."
   fi
+
   if [[ "`az group exists --name ${RG}`" == "false" ]]; 
   then
     echo -n " creating.."
