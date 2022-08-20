@@ -130,9 +130,9 @@ for COMPONENT in source destination; do
   for TYPE in vm gw; do
     if [[ -r ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto ]]
     then
-      echo "found readable ${COMPONENT}-${TYPE}-init.yaml-proto."
+      echo "found readable ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto."
     else
-      echo "cloud-init prototype YAML for ${COMPONENT}-${TYPE} doesn't exist. exiting." && exit 1
+      echo "cloud-init prototype YAML for ${COMPONENT}-${TYPE} doesn't exist in ${PROTODIR}. exiting." && exit 1
     fi
   done
 done
