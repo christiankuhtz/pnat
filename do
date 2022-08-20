@@ -192,7 +192,7 @@ done
 RG=${PROJ}-shared-rg
 echo -n "checking storage account ${PROJ}shared.."
 if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" == "true" ]]; then
-  echo -n " creating account.."
+  echo -n " nope, creating account.."
   az storage account create \
     --resource-group ${RG} \
     --location ${LOCATION} \
@@ -201,7 +201,7 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
     --kind FileStorage \
     --enable-large-file-share \
     >>${LOG} 2>&1 || exit 1
-
+ 
 # Create share
 
     echo -n "creating share.."
