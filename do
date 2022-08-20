@@ -220,7 +220,7 @@ fi
 
 # populate SMB credentials on gw VM's
 
-echo "pushing SMB credentials into .yaml's.."
+echo -n "pushing SMB credentials into .yaml's.."
 for COMPONENT in source destination; do
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
   sed -e "s/SMBACCOUNTNAME/foo/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
