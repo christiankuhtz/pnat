@@ -457,6 +457,7 @@ done
 
 
 # Show what was configured
+echo;echo "> Summary"
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
