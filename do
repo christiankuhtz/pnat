@@ -212,7 +212,7 @@ for COMPONENT in source destination; do
   sed -e "s/SMBACCOUNTNAME/foo/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
   sed -e "s/SMBACCOUNTKEY/bar/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
-  rm *gw-init.yaml-pre
+  rm ${BUILDDIR}/*gw-init.yaml-pre
 done
 echo " done."
 
