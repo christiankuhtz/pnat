@@ -1,5 +1,5 @@
 #!/bin/zsh
-set -x 
+#set -x 
 
 # "known good defaults", can be modified in CONFIG file
 
@@ -85,7 +85,8 @@ if [[ -z ${FORCE} ]]
 then
   echo -n "preserving"
 else
-  echo -n "deleting"
+  echo -n "deleting log and"
+  rm ${LOG}
 fi
 echo " shared rg if present."
 
@@ -448,7 +449,7 @@ for COMPONENT in source destination; do
       --size ${VMSKU} \
       --admin-username "${ADMINUSER}" \
       --admin-password "${ADMINPASS}" \
-      --custom-data ${COMPONENT}-${TYPE}-init.yaml \
+      --custom-data ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml \
       >>${LOG} 2>&1 || exit 1
     echo " done."
   done
