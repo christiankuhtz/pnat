@@ -190,9 +190,9 @@ done
 # Create shared storage
 
 RG=${PROJ}-shared-rg
-echo -n "checking storage account ${PROJ}shared.."
+echo -n "does storage account ${PROJ}shared exists.."
 if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" == "true" ]]; then
-  echo -n " nope, creating account.."
+  echo -n " no, creating account.."
   az storage account create \
     --resource-group ${RG} \
     --location ${LOCATION} \
@@ -204,7 +204,7 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
  
 # Create share
 
-    echo -n "creating share.."
+    echo -n " creating share.."
     az storage share-rm create \
       --resource-group ${RG} \
       --name share \
@@ -214,7 +214,7 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
       >>${LOG} 2>&1 || exit 1
     echo " done."
 else 
-  echo " exists and presumed correct."
+  echo " yes, presumed correct."
 fi
 
 
