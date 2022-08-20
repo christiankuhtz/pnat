@@ -87,7 +87,7 @@ then
 else
   echo -n "deleting"
 fi
-echo "shared rg if present."
+echo " shared rg if present."
 
 
 # Advise on creds
@@ -112,6 +112,7 @@ else
   echo -n "LOCATION found in ${CONFIG}. Using "
 fi
 echo "region ${LOCATION}."
+
 
 # Advise on log file
 
