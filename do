@@ -458,14 +458,12 @@ done
 
 # Show what was configured
 
-(
-  for COMPONENT in source destination; do
-    RG=${PROJ}-${COMPONENT}-rg
-    for TYPE in vm gw; do
-      echo "${COMPONENT}-${TYPE}: ${PIPADDR[${COMPONENT}-${TYPE}]} | ${PRIVIPADDR[${COMPONENT}-${TYPE}]}"
-    done
+for COMPONENT in source destination; do
+  RG=${PROJ}-${COMPONENT}-rg
+  for TYPE in vm gw; do
+    echo "${COMPONENT}-${TYPE}: ${PIPADDR[${COMPONENT}-${TYPE}]} | ${PRIVIPADDR[${COMPONENT}-${TYPE}]}" | tee -a ${LOG}
   done
-) | tee -a ${LOG}
+done
 
 
 # Everything _should_ be done by the time we get here. "GOOD LUCK."
