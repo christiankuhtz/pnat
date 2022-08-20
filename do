@@ -206,6 +206,7 @@ for COMPONENT in source destination; do
 done
 echo " done."
 
+
 # Do all the networking things
 
 for COMPONENT in source destination; do
