@@ -159,7 +159,7 @@ for COMPONENT in shared source destination; do
   if [[ "`az group exists --name ${RG}`" == "true" ]]; 
   then
     echo -n " exist.."
-    if [[ "${COMPONENT}" == "shared" && "${FORCE}" == "true" ]]; 
+    if [[ "${COMPONENT}" == "shared" && ! -z "${FORCE}" ]]; 
     then
       echo " preserved."
     else
