@@ -35,6 +35,7 @@ VMSKU=Standard_D2s_v5
 UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-server-jammy-daily:22_04-daily-lts-gen2:22.04.202208100
 LOG=${PROJ}.log
 PROTODIR=./proto
+BUILDDIR=./build
 
 
 
@@ -50,6 +51,11 @@ else
   exit 1
 fi
 
+# Remove and make build dir
+
+echo "setup build dir ${BUILDDIR}"
+rm -rf ${BUILDDIR} 2>&1 >/dev/null
+mkdir ${BUILDDIR}
 
 # check if CONFIG file exists and explain which parameters were set
 
@@ -124,7 +130,7 @@ done
 echo -n "generate cloud-init .yaml's for VM's from .yaml-proto's.."
 for COMPONENT in source destination; do 
   for TYPE in gw vm; do
-    sed -e "s/SSHPORT/${PORT[ssh]}/" ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto > ${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
+    sed -e "s/SSHPORT/${PORT[ssh]}/" ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto > ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
   done
 done
 echo " done."
@@ -200,10 +206,10 @@ fi
 
 echo "pushing SMB credentials into .yaml's.."
 for COMPONENT in source destination; do
-  mv ${COMPONENT}-gw-init.yaml ${COMPONENT}-gw-init.yaml-pre
-  sed -e "s/SMBACCOUNTNAME/foo/" ${COMPONENT}-gw-init.yaml-pre > ${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
-  mv ${COMPONENT}-gw-init.yaml ${COMPONENT}-gw-init.yaml-pre
-  sed -e "s/SMBACCOUNTKEY/bar/" ${COMPONENT}-gw-init.yaml-pre > ${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
+  sed -e "s/SMBACCOUNTNAME/foo/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
+  sed -e "s/SMBACCOUNTKEY/bar/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   rm *gw-init.yaml-pre
 done
 echo " done."
