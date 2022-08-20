@@ -36,6 +36,7 @@ UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-server-jammy-daily:22_04-daily-lts-gen2
 LOG=${PROJ}.log
 PROTODIR=./proto
 BUILDDIR=./build
+FORCE=false
 
 
 
@@ -147,7 +148,7 @@ for COMPONENT in shared source destination; do
   if [[ "`az group exists --name ${RG}`" == "true" ]]; 
   then
     echo -n " exist.."
-    if [[ "${COMPONENT}" == "shared" ]]; 
+    if [[ "${COMPONENT}" == "shared" && "${FORCE}" == "true" ]]; 
     then
       echo " preserved."
     else
