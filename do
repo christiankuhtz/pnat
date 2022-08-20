@@ -34,6 +34,7 @@ VMSKU=Standard_D2s_v5
 #UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-minimal-jammy:minimal-22_04-lts-gen2:22.04.202208100
 UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-server-jammy-daily:22_04-daily-lts-gen2:22.04.202208100
 LOG=${PROJ}.log
+PROTODIR=./proto
 
 
 
@@ -123,7 +124,7 @@ done
 echo -n "generate cloud-init .yaml's for VM's from .yaml-proto's.."
 for COMPONENT in source destination; do 
   for TYPE in gw vm; do
-    sed -e "s/SSHPORT/${PORT[ssh]}/" ${COMPONENT}-${TYPE}-init.yaml-proto > ${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
+    sed -e "s/SSHPORT/${PORT[ssh]}/" ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto > ${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
   done
 done
 echo " done."
