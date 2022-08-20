@@ -115,7 +115,7 @@ fi
 
 for COMPONENT in source destination; do
   for TYPE in vm gw; do
-    if [[ -r ${COMPONENT}-${TYPE}-init.yaml-proto ]]
+    if [[ -r ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto ]]
     then
       echo "found readable ${COMPONENT}-${TYPE}-init.yaml-proto."
     else
