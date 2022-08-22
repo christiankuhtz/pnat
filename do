@@ -193,7 +193,7 @@ done
 RG=${PROJ}-shared-rg
 STORAGEACCOUNTNAME=${PROJ}shared
 
-echo -n "does storage account ${PROJ}shared exists.."
+echo -n "does storage account ${STORAGEACCOUNTNAME} exist?.."
 if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" == "true" ]]; then
   echo -n " no, creating account.."
   az storage account create \
