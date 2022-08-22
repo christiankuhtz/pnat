@@ -191,13 +191,15 @@ done
 # Create shared storage
 
 RG=${PROJ}-shared-rg
+STORAGEACCOUNTNAME=${PROJ}shared
+
 echo -n "does storage account ${PROJ}shared exists.."
 if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" == "true" ]]; then
   echo -n " no, creating account.."
   az storage account create \
     --resource-group ${RG} \
     --location ${LOCATION} \
-    --name ${PROJ}shared \
+    --name ${STORAGEACCOUNTNAME} \
     --sku Premium_LRS \
     --kind FileStorage \
     >>${LOG} 2>&1 || exit 1
@@ -208,7 +210,7 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
     az storage share-rm create \
       --resource-group ${RG} \
       --name share \
-      --storage-account ${PROJ}shared \
+      --storage-account ${STORAGEACCOUNTNAME} \
       --enabled-protocols smb \
       --quota 100 \
       >>${LOG} 2>&1 || exit 1
@@ -218,7 +220,8 @@ else
 fi
 
 # get storage key (yes, we only get first one ever, and that's potentially bad, but not really for this scenario)
-STORAGEACCOUNTKEY=$(az storage account keys list -g ${PROJ}-shared-rg -n {PROJ}shared --query '[0].value' -o tsv)
+
+STORAGEACCOUNTKEY=$(az storage account keys list -g ${RG} -n ${STORAGEACCOUNTNAME} --query '[0].value' -o tsv)
 echo "storage account key retrieved."
 
 # populate SMB credentials on gw VM's
