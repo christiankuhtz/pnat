@@ -32,7 +32,7 @@ ACCELNET="--accelerated-networking"
 VMSKU=Standard_D2s_v5
 #UBUNTUIMAGEURN=UbuntuLTS
 #UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-minimal-jammy:minimal-22_04-lts-gen2:22.04.202208100
-UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-server-jammy-daily:22_04-daily-lts-gen2:22.04.202208100
+UBUNTUIMAGEURN=Canonical:0001-com-ubuntu-server-jammy-daily:22_04-daily-lts:22.04.202208100
 LOG=${PROJ}.log
 PROTODIR=./proto
 BUILDDIR=./build
@@ -217,15 +217,18 @@ else
   echo " yes, presumed correct."
 fi
 
+# get storage key (yes, we only get first one ever, and that's potentially bad, but not really for this scenario)
+STORAGEACCOUNTKEY=$(az storage account keys list -g ${PROJ}-shared-rg -n {PROJ}shared --query '[0].value' -o tsv)
+echo "storage account key retrieved."
 
 # populate SMB credentials on gw VM's
 
 echo -n "pushing SMB credentials into .yaml's.."
 for COMPONENT in source destination; do
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
-  sed -e "s/SMBACCOUNTNAME/foo/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  sed -e "s/SMBACCOUNTNAME/${PROJ}shared/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
-  sed -e "s/SMBACCOUNTKEY/bar/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  sed -e "s/SMBACCOUNTKEY/${STORAGEACCOUNTKEY}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   rm ${BUILDDIR}/*gw-init.yaml-pre
 done
 echo " done."

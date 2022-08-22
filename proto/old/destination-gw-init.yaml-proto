@@ -1,0 +1,46 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - unattended-upgrades
+  - wireguard
+  - cifs-utils
+write_files:
+  - content: |
+      net.ipv4.ip_forward=1
+    path: /etc/sysctl.d/99-custom.conf
+    permissions: '0644'
+  - content: |
+      Port SSHPORT
+      TCPKeepAlive yes
+    path: /etc/ssh/sshd_config
+    append: true
+  - content: |
+      Unattended-Upgrade::Automatic-Reboot "true";
+      Unattended-Upgrade::Remove-Unused-Dependencies "true";
+      Unattended-Upgrade::SyslogEnable "true";
+      Unattended-Upgrade::Allowed-Origins {
+        "${distro_id}:${distro_codename}";
+        "${distro_id}:${distro_codename}-security";
+        "${distro_id}ESMApps:${distro_codename}-apps-security";
+        "${distro_id}ESM:${distro_codename}-infra-security";
+        "${distro_id}:${distro_codename}-updates";
+        "${distro_id}:${distro_codename}-backports";
+      };
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    append: true
+  - content : |
+      SMBACCOUNTNAME
+      SMBACCOUNTKEY
+    path: /etc/smbcredentials/share.cred
+    permissions: '0600'
+runcmd:
+  - [ systemctl, restart, ssh ]
+  - mkdir /run/wireguard
+  - ip link add dev wg0 type wireguard
+  - ip address add dev wg0 100.64.0/
+  - 'wg genkey | sudo tee /etc/wireguard/private.key > /run/wireguard/private.base64'
+power_state:
+  mode: reboot
+  timeout: 2
+  delay: now
+  message: "cleanup reboot"
