@@ -1,9 +1,7 @@
 #cloud-config
 package_upgrade: true
 packages:
-  - unattended-upgrades
   - wireguard
-  - cifs-utils
 write_files:
   - content: |
       net.ipv4.ip_forward=1
@@ -28,19 +26,19 @@ write_files:
       };
     path: /etc/apt/apt.conf.d/50unattended-upgrades
     append: true
-  - content : |
+  - content: |
       SMBACCOUNTNAME
       SMBACCOUNTKEY
     path: /etc/smbcredentials/share.cred
     permissions: '0600'
+  - content: |
+      //SMBACCOUNTNAME.file.core.windows.net/share /mnt/share cifs nofail,credentials=/etc/smbcredentials/share.cred,serverino,nosharesock,actimeo=30
+    path: /etc/fstab
+    append: true
 runcmd:
   - [ systemctl, restart, ssh ]
-  - mkdir /run/wireguard
-  - ip link add dev wg0 type wireguard
-  - ip address add dev wg0 100.64.0/
-  - 'wg genkey | sudo tee /etc/wireguard/private.key > /run/wireguard/private.base64'
+  - mkdir /mnt/share
 power_state:
   mode: reboot
-  timeout: 2
-  delay: now
+  delay: 1
   message: "cleanup reboot"

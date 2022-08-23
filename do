@@ -224,12 +224,16 @@ fi
 STORAGEACCOUNTKEY=$(az storage account keys list -g ${RG} -n ${STORAGEACCOUNTNAME} --query '[0].value' -o tsv)
 echo "storage account key retrieved."
 
+# Escape storage account key
+
+STORAGEACCOUNTKEY=`printf '%s' ${STORAGEACCOUNTKEY}|  sed -e 's,\/,\\\/,g'`
+
 # populate SMB credentials on gw VM's
 
 echo -n "pushing SMB credentials into .yaml's.."
 for COMPONENT in source destination; do
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
-  sed -e "s/SMBACCOUNTNAME/${PROJ}shared/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  sed -e "s/SMBACCOUNTNAME/${STORAGEACCOUNTNAME}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
   sed -e "s/SMBACCOUNTKEY/${STORAGEACCOUNTKEY}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   rm ${BUILDDIR}/*gw-init.yaml-pre
@@ -257,12 +261,14 @@ done
 
 # Get storage account ID 
 
+RG=${PROJ}-shared-rg
+echo -n "getting storage account ID ref.."
 storageAccountID=$(az storage account show \
-        --resource-group ${PROJ}-shared-rg \
-        --name ${PROJ}shared \
+        --resource-group ${RG} \
+        --name ${STORAGEACCOUNTNAME} \
         --query "id" | \
     tr -d '"') && \
-echo "got storage account ID ref."
+echo "done."
 
 # Iterate through the vnets/subnets to create local PE's for storage and register in private DNS zone
 
