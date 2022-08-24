@@ -145,7 +145,7 @@ done
 echo -n "generate cloud-init .yaml's for VM's from .yaml-proto's.."
 for COMPONENT in source destination; do 
   for TYPE in gw vm; do
-    cp ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre
+    cp ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre
     sed -e "s/COMPONENT/${COMPONENT}/g" ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
     rm ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre
   done
