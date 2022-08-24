@@ -246,7 +246,7 @@ done
 echo " done."
 
 
-# Do all the networking things
+# Do all the networky things
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
@@ -264,15 +264,46 @@ for COMPONENT in source destination; do
     >>${LOG} 2>&1 || exit 1
   echo " done."
 
-# Adding bastion subnet
+  # Adding bastion subnet
 
-  echo -n "adding AzureBastionSubnet for bastion.."
+  echo -n "adding AzureBastionSubnet for ${COMPONENT} bastion.."
   az network vnet subnet create \
     --resource-group ${RG} \
     --name AzureBastionSubnet
     --vnet-name ${COMPONENT}-vnet \
-    --address-prefixes ${PREFIX[${COMPONENT}]}.${SUBNET[bastion]}.0/${PREFIXLEN[${COMPONENT}]}
+    --address-prefixes ${PREFIX[${COMPONENT}]}.${SUBNET[bastion]}.0/${PREFIXLEN[${COMPONENT}]} \
+    >>${LOG} 2>&1 || exit 1
   echo " done."
+
+  # creating bastion
+
+  echo -n "creating pip for bastion for ${COMPONENT}.."
+  az network public-ip create \
+    --resource-group ${RG} \
+    --name ${COMPONENT}-bastion-pip \
+    --sku Standard \
+    >>${LOG} 2>&1 || exit 1
+  echo " done."
+
+  echo -n "retrieve IP address of ${COMPONENT}-bastion-pip.."
+  PIPADDR[${COMPONENT}-bastion]=`az network public-ip show \
+    --resource-group ${RG} \
+    --name ${COMPONENT}-bastion-pip \
+    --query "ipAddress" \
+    | sed 's/\"//g'`/32
+  echo " done. (${PIPADDR[${COMPONENT}-bastion]})"
+
+  echo -n "creating bastion for ${COMPONENT}.."
+  az network bastion create \
+    --resource-group ${RG} \
+    --name ${COMPONENT} \
+    --public-ip-address ${COMPONENT}-bastion-pip \
+    --vnet-name ${COMPONENT}-vnet \
+    --scale-units 2 \
+    --sku Standard \
+    >>${LOG} 2>&1 || exit 1
+  echo " done."
+
 done
 
 
