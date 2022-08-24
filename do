@@ -321,6 +321,8 @@ echo "done."
 
 # Iterate through the vnets/subnets to create local PE's for storage and register in private DNS zone
 
+  echo "> Storage components in ${RG}"
+
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
 
@@ -397,7 +399,7 @@ for COMPONENT in source destination; do
   echo " done."
 
 # Create public IPs and retrieve the addr
-  echo "> Rest of networking for ${RG}"
+  echo "> Deploying more networking components in ${RG}"
 
   for TYPE in vm gw; do
     echo -n "deploying ${COMPONENT}-${TYPE}-pip.."
