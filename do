@@ -24,7 +24,6 @@ MYIPADDR=`curl -fs 'https://api.ipify.org' | cut -f1,2,3 -d.`.0/24
 #MYIPADDR=`dig +short myip.opendns.com @resolver1.opendns.com`/32
 echo "my IP prefix is ${MYIPADDR}"
 #echo "my IP address is ${MYIPADDR}"
-PORT[ssh]=22
 PORT[wireguard]=51820
 SUBNETSUFFIX[gw]=16
 SUBNETSUFFIX[vm]=17
@@ -76,9 +75,8 @@ fi
 echo "found readable config file (${CONFIG})."
 
 
-# emit set SSH port, can be changed in config file
+# emit set Wireguard port, can be changed in config file
 
-echo "SSH port: ${PORT[ssh]}"
 echo "Wireguard port: ${PORT[wireguard]}"
 
 
@@ -147,7 +145,6 @@ done
 echo -n "generate cloud-init .yaml's for VM's from .yaml-proto's.."
 for COMPONENT in source destination; do 
   for TYPE in gw vm; do
-    sed -e "s/SSHPORT/${PORT[ssh]}/" ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto > ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
     mv ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre
     sed -e "s/COMPONENT/${COMPONENT}/g" ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
     rm ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre
@@ -424,23 +421,6 @@ for COMPONENT in source destination; do
       --name ${COMPONENT}-${TYPE}-nsg \
       >>${LOG} 2>&1 || exit 1
     echo " done."
-
-    echo -n "creating ${COMPONENT}-${TYPE}-nsg-rule.."
-    az network nsg rule create \
-      --resource-group ${RG} \
-      --nsg-name ${COMPONENT}-${TYPE}-nsg \
-      --name myip \
-      --description "Not so wide open ssh" \
-      --priority 100 \
-      --destination-address-prefixes '*' \
-      --destination-port-ranges ${PORT[ssh]} \
-      --source-address-prefixes ${MYIPADDR} \
-      --source-port-ranges '*' \
-      --direction Inbound \
-      --protocol Tcp \
-      >>${LOG} 2>&1 || exit 1
-    echo " done. (${MYIPADDR}->${PIPADDR[${COMPONENT}-${TYPE}]}:${PORT[ssh]})"
-
 
 # Create NIC
 
