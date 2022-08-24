@@ -270,7 +270,7 @@ for COMPONENT in source destination; do
   echo -n "adding AzureBastionSubnet for ${COMPONENT} bastion.."
   az network vnet subnet create \
     --resource-group ${RG} \
-    --name AzureBastionSubnet
+    --name AzureBastionSubnet \
     --vnet-name ${COMPONENT}-vnet \
     --address-prefixes ${PREFIX[${COMPONENT}]}.${SUBNET[bastion]}.0/${PREFIXLEN[${COMPONENT}]} \
     >>${LOG} 2>&1 || exit 1
