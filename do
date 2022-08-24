@@ -139,6 +139,10 @@ for COMPONENT in source destination; do
   done
 done
 
+# fyi
+
+echo "build directory is ${BUILDDIR}."
+
 
 # Generate cloud-init .yaml's from -proto's
 
