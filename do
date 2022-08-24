@@ -11,13 +11,14 @@ declare -A PIPADDR
 declare -A PORT
 declare -A SUBNETSUFFIX
 declare -A PRIVIPADDR
+declare -A SUBNET
 # only /24 supported
 #PREFIX[source]=100.64.0
 #PREFIX[destination]=100.64.1
-PREFIX[source]=192.168.0
-PREFIX[destination]=192.168.1
-PREFIXLEN[source]=/24
-PREFIXLEN[destination]=/24
+PREFIX[source]=192.168
+PREFIX[destination]=192.168
+PREFIXLEN[source]=24
+PREFIXLEN[destination]=24
 MYIPADDR=`curl -fs 'https://api.ipify.org' | cut -f1,2,3 -d.`.0/24
 #MYIPADDR=`curl -fs 'https://api.ipify.org'`/32
 #MYIPADDR=`dig +short myip.opendns.com @resolver1.opendns.com`/32
@@ -27,6 +28,8 @@ PORT[ssh]=22
 PORT[wireguard]=51820
 SUBNETSUFFIX[gw]=16
 SUBNETSUFFIX[vm]=17
+SUBNET[pnat]=0
+SUBNET[bastion]=1
 CONFIG=./config
 ACCELNET="--accelerated-networking"
 VMSKU=Standard_D2s_v5
@@ -236,6 +239,8 @@ for COMPONENT in source destination; do
   sed -e "s/SMBACCOUNTNAME/${STORAGEACCOUNTNAME}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
   sed -e "s/SMBACCOUNTKEY/${STORAGEACCOUNTKEY}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
+  sed -e "s/COMPONENT/${COMPONENT}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   rm ${BUILDDIR}/*gw-init.yaml-pre
 done
 echo " done."
@@ -245,6 +250,7 @@ echo " done."
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
+  echo "> Deploying ${RG}"
 
 # Create vnets
 
@@ -252,12 +258,23 @@ for COMPONENT in source destination; do
   az network vnet create \
     --resource-group ${RG} \
     --name ${COMPONENT}-vnet \
-    --address-prefix ${PREFIX[${COMPONENT}]}.0${PREFIXLEN[${COMPONENT}]} \
+    --address-prefix ${PREFIX[${COMPONENT}]}.${SUBNET[pnat]}.0/$((${PREFIXLEN[${COMPONENT}]} - 1)) \
     --subnet-name ${COMPONENT}-subnet \
-    --subnet-prefixes ${PREFIX[${COMPONENT}]}.0${PREFIXLEN[${COMPONENT}]} \
+    --subnet-prefixes ${PREFIX[${COMPONENT}]}.${SUBNET[pnat]}.0/${PREFIXLEN[${COMPONENT}]} \
     >>${LOG} 2>&1 || exit 1
   echo " done."
+
+# Adding bastion subnet
+
+  echo -n "adding AzureBastionSubnet for bastion.."
+  az network vnet subnet create \
+    --resource-group ${RG} \
+    --name AzureBastionSubnet
+    --vnet-name ${COMPONENT}-vnet \
+    --address-prefixes ${PREFIX[${COMPONENT}]}.${SUBNET[bastion]}.0/${PREFIXLEN[${COMPONENT}]}
+  echo " done."
 done
+
 
 # Get storage account ID 
 
@@ -274,7 +291,6 @@ echo "done."
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
-  echo "> Deploying ${RG}"
 
 #  Disable PE network policies
 
@@ -398,7 +414,7 @@ for COMPONENT in source destination; do
 # Create NIC
 
     echo -n "deploying ${COMPONENT}-${TYPE}-nic.."
-    PRIVIPADDR[${COMPONENT}-${TYPE}]=${PREFIX[${COMPONENT}]}.${SUBNETSUFFIX[${TYPE}]}
+    PRIVIPADDR[${COMPONENT}-${TYPE}]=${PREFIX[${COMPONENT}]}.${SUBNET[pnat]}.${SUBNETSUFFIX[${TYPE}]}
     az network nic create \
       --resource-group ${RG} \
       --name ${COMPONENT}-${TYPE}-nic \

@@ -26,6 +26,5 @@ runcmd:
   - [ systemctl, restart, ssh ]
 power_state:
   mode: reboot
-  timeout: 2
-  delay: now
+  delay: 1
   message: "cleanup reboot"

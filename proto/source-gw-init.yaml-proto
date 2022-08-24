@@ -1,7 +1,5 @@
 #cloud-config
 package_upgrade: true
-packages:
-  - wireguard
 write_files:
   - content: |
       net.ipv4.ip_forward=1
@@ -13,26 +11,12 @@ write_files:
     path: /etc/ssh/sshd_config
     append: true
   - content: |
-      Unattended-Upgrade::Automatic-Reboot "true";
-      Unattended-Upgrade::Remove-Unused-Dependencies "true";
-      Unattended-Upgrade::SyslogEnable "true";
-      Unattended-Upgrade::Allowed-Origins {
-        "${distro_id}:${distro_codename}";
-        "${distro_id}:${distro_codename}-security";
-        "${distro_id}ESMApps:${distro_codename}-apps-security";
-        "${distro_id}ESM:${distro_codename}-infra-security";
-        "${distro_id}:${distro_codename}-updates";
-        "${distro_id}:${distro_codename}-backports";
-      };
-    path: /etc/apt/apt.conf.d/50unattended-upgrades
-    append: true
-  - content: |
-      SMBACCOUNTNAME
-      SMBACCOUNTKEY
+      username=SMBACCOUNTNAME
+      password=SMBACCOUNTKEY
     path: /etc/smbcredentials/share.cred
     permissions: '0600'
   - content: |
-      //SMBACCOUNTNAME.file.core.windows.net/share /mnt/share cifs nofail,credentials=/etc/smbcredentials/share.cred,serverino,nosharesock,actimeo=30
+      //share.COMPONENT.io/share /mnt/share cifs nofail,vers=3.0,credentials=/etc/smbcredentials/share.cred,serverino,nosharesock,actimeo=30,dir_mode=0777,file_mode=0777
     path: /etc/fstab
     append: true
 runcmd:
