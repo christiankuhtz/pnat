@@ -1,26 +1,9 @@
 #cloud-config
 package_upgrade: true
-packages:
-  - unattended-upgrades
 write_files:
   - content: |
-      Port SSHPORT
       TCPKeepAlive yes
     path: /etc/ssh/sshd_config
-    append: true
-  - content: |
-      Unattended-Upgrade::Automatic-Reboot "true";
-      Unattended-Upgrade::Remove-Unused-Dependencies "true";
-      Unattended-Upgrade::SyslogEnable "true";
-      Unattended-Upgrade::Allowed-Origins {
-        "${distro_id}:${distro_codename}";
-        "${distro_id}:${distro_codename}-security";
-        "${distro_id}ESMApps:${distro_codename}-apps-security";
-        "${distro_id}ESM:${distro_codename}-infra-security";
-        "${distro_id}:${distro_codename}-updates";
-        "${distro_id}:${distro_codename}-backports";
-      };
-    path: /etc/apt/apt.conf.d/50unattended-upgrades
     append: true
 runcmd:
   - [ systemctl, restart, ssh ]

@@ -6,7 +6,6 @@ write_files:
     path: /etc/sysctl.d/99-custom.conf
     permissions: '0644'
   - content: |
-      Port SSHPORT
       TCPKeepAlive yes
     path: /etc/ssh/sshd_config
     append: true
