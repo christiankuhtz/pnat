@@ -126,6 +126,11 @@ else
 fi
 
 
+# Deployment prep
+
+echo "> Deployment prep."
+
+
 # Check if yaml-proto configs exist
 
 for COMPONENT in source destination; do
@@ -196,6 +201,8 @@ done
 
 RG=${PROJ}-shared-rg
 STORAGEACCOUNTNAME=${PROJ}shared
+echo "> Deploying Storage in ${RG}"
+
 
 echo -n "does storage account ${STORAGEACCOUNTNAME} exist?.."
 if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" == "true" ]]; then
@@ -321,7 +328,7 @@ echo "done."
 
 # Iterate through the vnets/subnets to create local PE's for storage and register in private DNS zone
 
-  echo "> Storage components in ${RG}"
+  echo "> Deploying Private Endpoint and Private NDS components in ${RG}"
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
