@@ -23,9 +23,12 @@ write_files:
     path: /etc/fstab
     append: true
 runcmd:
-  - [ systemctl, restart, ssh ]
+  - systemctl restart ssh
   - mkdir /mnt/share
-  - [ do-release-upgrade, -f, DistUpgradeViewNonInteractive ]
+  - apt update
+  - apt upgrade -y
+  - apt autoremove -y
+  - do-release-upgrade, -f DistUpgradeViewNonInteractive
 power_state:
   mode: reboot
   delay: 1

@@ -11,8 +11,12 @@ write_files:
     path: /etc/apt/apt.conf.d/local
     append: true
 runcmd:
-  - [ systemctl, restart, ssh ]
-  - [ do-release-upgrade, -f, DistUpgradeViewNonInteractive ]
+  - systemctl restart ssh
+  - mkdir /mnt/share
+  - apt update
+  - apt upgrade -y
+  - apt autoremove -y
+  - do-release-upgrade, -f DistUpgradeViewNonInteractive
 power_state:
   mode: reboot
   delay: 1
