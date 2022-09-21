@@ -444,7 +444,7 @@ for COMPONENT in source destination; do
   fi
 
   # Allow wireguard between gateways
-set -x 
+
   echo -n "creating ${COMPONENT}-gw-nsg-rule.."
   az network nsg rule create \
     --resource-group ${RG} \
