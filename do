@@ -1,5 +1,5 @@
 #!/bin/zsh
-#set -x 
+#set -x
 
 # "known good defaults", can be modified in CONFIG file
 
@@ -19,7 +19,7 @@ PREFIX[source]=192.168
 PREFIX[destination]=192.168
 PREFIXLEN[source]=24
 PREFIXLEN[destination]=24
-MYIPADDR=`curl -fs 'https://api.ipify.org' | cut -f1,2,3 -d.`.0/24
+MYIPADDR=$(curl -fs 'https://api.ipify.org' | cut -f1,2,3 -d.).0/24
 #MYIPADDR=`curl -fs 'https://api.ipify.org'`/32
 #MYIPADDR=`dig +short myip.opendns.com @resolver1.opendns.com`/32
 echo "my IP prefix is ${MYIPADDR}"
@@ -39,14 +39,13 @@ LOG=${PROJ}.log
 PROTODIR=./proto
 BUILDDIR=./build
 FORCE=
-
+GWONLY=true
 
 # Check if Azure CLI exists
 
 echo -n "checking for Azure CLI.."
 az 2>&1 >/dev/null
-if [ $? -eq 0 ]
-then
+if [ $? -eq 0 ]; then
   echo " found."
 else
   echo " not found.. Install Azure CLI or check installation."
@@ -61,10 +60,8 @@ mkdir -p ${BUILDDIR}
 
 # check if CONFIG file exists and explain which parameters were set
 
-if [[ -a ${CONFIG} ]]
-then
-  if [[ -r ${CONFIG} ]]
-  then 
+if [[ -e ${CONFIG} ]]; then
+  if [[ -r ${CONFIG} ]]; then
     source ${CONFIG}
   else
     echo "config file (${CONFIG}) unreadable. aborting." && exit 1
@@ -74,16 +71,13 @@ else
 fi
 echo "found readable config file (${CONFIG})."
 
-
 # emit set Wireguard port, can be changed in config file
 
 echo "Wireguard port: ${PORT[wireguard]}"
 
-
 # Force shared delete?
 
-if [[ -z ${FORCE} ]]
-then
+if [[ -z ${FORCE} ]]; then
   echo -n "preserving"
 else
   echo -n "deleting log and"
@@ -91,52 +85,42 @@ else
 fi
 echo " shared rg if present."
 
-
 # Advise on creds
 
-if [[ -z ${ADMINUSER} ]]
-then
+if [[ -z ${ADMINUSER} ]]; then
   echo "ADMINUSER parameter in file ${CONFIG} missing. aborting." && exit 1
 fi
-if [[ -z ${ADMINPASS} ]]
-then
+if [[ -z ${ADMINPASS} ]]; then
   echo "ADMINPASS parameter in file ${CONFIG} missing (must match Azure password rules). aborting." && exit 1
 fi
 echo "credentials found in ${CONFIG}. (${ADMINUSER})"
 
-
 # Advise on location
 
-if [[ -z ${LOCATION} ]]
-then
+if [[ -z ${LOCATION} ]]; then
   echo -n "LOCATION not found in ${CONFIG}. Using default "
 else
   echo -n "LOCATION found in ${CONFIG}. Using "
 fi
 echo "region ${LOCATION}."
 
-
 # Advise on log file
 
-if [[ -a ${LOG} ]]
-then
+if [[ -e ${LOG} ]]; then
   echo "${LOG} exists, will be overwritten."
 else
   echo "${LOG} will be created."
 fi
 
-
 # Deployment prep
 
 echo "> Deployment prep."
-
 
 # Check if yaml-proto configs exist
 
 for COMPONENT in source destination; do
   for TYPE in vm gw; do
-    if [[ -r ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto ]]
-    then
+    if [[ -r ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto ]]; then
       echo "found readable ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto."
     else
       echo "cloud-init prototype YAML for ${COMPONENT}-${TYPE} doesn't exist in ${PROTODIR}. exiting." && exit 1
@@ -148,30 +132,26 @@ done
 
 echo "build directory is ${BUILDDIR}."
 
-
 # Generate cloud-init .yaml's from -proto's
 
 echo -n "generate cloud-init .yaml's for VM's from .yaml-proto's.."
-for COMPONENT in source destination; do 
+for COMPONENT in source destination; do
   for TYPE in gw vm; do
     cp ${PROTODIR}/${COMPONENT}-${TYPE}-init.yaml-proto ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre
-    sed -e "s/COMPONENT/${COMPONENT}/g" ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
+    sed -e "s/COMPONENT/${COMPONENT}/g" ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre >${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml >>${LOG} 2>&1 || exit 1
     rm ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml-pre
   done
 done
 echo " done."
-
 
 # Check if resource group exists, create it if it does not or delete if it does, unless it's shared rg
 
 for COMPONENT in shared source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   echo -n "rg ${RG} does"
-  if [[ "`az group exists --name ${RG}`" == "true" ]]
-  then
+  if [[ "$(az group exists --name ${RG})" == "true" ]]; then
     echo -n " exist.."
-    if [[ "${COMPONENT}" != "shared" || -n "${FORCE}" ]]
-    then
+    if [[ "${COMPONENT}" != "shared" || -n "${FORCE}" ]]; then
       echo -n " deleting.."
       az group delete \
         --resource-group ${RG} \
@@ -185,8 +165,7 @@ for COMPONENT in shared source destination; do
     echo -n "n't exist.."
   fi
 
-  if [[ "`az group exists --name ${RG}`" == "false" ]]; 
-  then
+  if [[ "$(az group exists --name ${RG})" == "false" ]]; then
     echo -n " creating.."
     az group create \
       --name ${RG} \
@@ -196,16 +175,14 @@ for COMPONENT in shared source destination; do
   fi
 done
 
-
 # Create shared storage
 
 RG=${PROJ}-shared-rg
 STORAGEACCOUNTNAME=${PROJ}shared
 echo "> Deploying Storage in ${RG}"
 
-
 echo -n "does storage account ${STORAGEACCOUNTNAME} exist?.."
-if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" == "true" ]]; then
+if [[ "$(az storage account check-name --name pnatshared --query nameAvailable)" == "true" ]]; then
   echo -n " no, creating account.."
   az storage account create \
     --resource-group ${RG} \
@@ -214,19 +191,19 @@ if [[ "`az storage account check-name --name pnatshared --query nameAvailable`" 
     --sku Premium_LRS \
     --kind FileStorage \
     >>${LOG} 2>&1 || exit 1
- 
-# Create share
 
-    echo -n " creating share.."
-    az storage share-rm create \
-      --resource-group ${RG} \
-      --name share \
-      --storage-account ${STORAGEACCOUNTNAME} \
-      --enabled-protocols smb \
-      --quota 100 \
-      >>${LOG} 2>&1 || exit 1
-    echo " done."
-else 
+  # Create share
+
+  echo -n " creating share.."
+  az storage share-rm create \
+    --resource-group ${RG} \
+    --name share \
+    --storage-account ${STORAGEACCOUNTNAME} \
+    --enabled-protocols smb \
+    --quota 100 \
+    >>${LOG} 2>&1 || exit 1
+  echo " done."
+else
   echo " yes, presumed correct."
 fi
 
@@ -237,22 +214,21 @@ echo "storage account key retrieved."
 
 # Escape storage account key
 
-STORAGEACCOUNTKEY=`printf '%s' ${STORAGEACCOUNTKEY}|  sed -e 's,\/,\\\/,g'`
+STORAGEACCOUNTKEY=$(printf '%s' ${STORAGEACCOUNTKEY} | sed -e 's,\/,\\\/,g')
 
 # populate SMB credentials on gw VM's
 
 echo -n "pushing SMB credentials into .yaml's.."
 for COMPONENT in source destination; do
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
-  sed -e "s/SMBACCOUNTNAME/${STORAGEACCOUNTNAME}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  sed -e "s/SMBACCOUNTNAME/${STORAGEACCOUNTNAME}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre >${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
-  sed -e "s/SMBACCOUNTKEY/${STORAGEACCOUNTKEY}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  sed -e "s/SMBACCOUNTKEY/${STORAGEACCOUNTKEY}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre >${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
-  sed -e "s/COMPONENT/${COMPONENT}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre > ${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  sed -e "s/COMPONENT/${COMPONENT}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre >${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
   rm ${BUILDDIR}/*gw-init.yaml-pre
 done
 echo " done."
-
 
 # Do all the networky things
 
@@ -260,7 +236,7 @@ for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   echo "> Deploying ${RG}"
 
-# Create vnets
+  # Create vnets
 
   echo -n "deploying ${COMPONENT}-vnet and ${COMPONENT}-subnet.."
   az network vnet create \
@@ -294,12 +270,12 @@ for COMPONENT in source destination; do
   echo " done."
 
   echo -n "retrieve IP address of ${COMPONENT}-bastion-pip.."
-  PIPADDR[${COMPONENT}-bastion]=`az network public-ip show \
+  PIPADDR[${COMPONENT} - bastion]=$(az network public-ip show \
     --resource-group ${RG} \
     --name ${COMPONENT}-bastion-pip \
-    --query "ipAddress" \
-    | sed 's/\"//g'`/32
-  echo " done. (${PIPADDR[${COMPONENT}-bastion]})"
+    --query "ipAddress" |
+    sed 's/\"//g')/32
+  echo " done. (${PIPADDR[${COMPONENT} - bastion]})"
 
   echo -n "creating bastion for ${COMPONENT}.."
   az network bastion create \
@@ -314,26 +290,25 @@ for COMPONENT in source destination; do
 
 done
 
-
-# Get storage account ID 
+# Get storage account ID
 
 RG=${PROJ}-shared-rg
 echo -n "getting storage account ID ref.."
 storageAccountID=$(az storage account show \
-        --resource-group ${RG} \
-        --name ${STORAGEACCOUNTNAME} \
-        --query "id" | \
-    tr -d '"') && \
-echo "done."
+  --resource-group ${RG} \
+  --name ${STORAGEACCOUNTNAME} \
+  --query "id" |
+  tr -d '"') &&
+  echo "done."
 
 # Iterate through the vnets/subnets to create local PE's for storage and register in private DNS zone
 
-  echo "> Deploying Private Endpoint and Private NDS components in ${RG}"
+echo "> Deploying Private Endpoint and Private NDS components in ${RG}"
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
 
-#  Disable PE network policies
+  #  Disable PE network policies
 
   echo -n "disabling PE network policies on ${COMPONENT}-subnet.."
   az network vnet subnet update \
@@ -341,10 +316,10 @@ for COMPONENT in source destination; do
     --name ${COMPONENT}-subnet \
     --vnet-name ${COMPONENT}-vnet \
     --disable-private-endpoint-network-policies true \
-    --output none && \
+    --output none &&
     echo " done."
 
-# creating PE
+  # creating PE
 
   echo "creating PE."
   peID=$(az network private-endpoint create \
@@ -355,11 +330,10 @@ for COMPONENT in source destination; do
     --private-connection-resource-id ${storageAccountID} \
     --group-id "file" \
     --connection-name "${PROJ}shared" \
-    --query "id" | tr -d '"')  && \
+    --query "id" | tr -d '"') &&
 
-# private DNS setup for vnet
-
-  echo -n "creating ${COMPONENT}.io private DNS zone.."
+    # private DNS setup for vnet
+    echo -n "creating ${COMPONENT}.io private DNS zone.."
   az network private-dns zone create \
     --resource-group ${RG} \
     --name "${COMPONENT}.io" \
@@ -375,18 +349,18 @@ for COMPONENT in source destination; do
     --registration-enabled true \
     >>${LOG} 2>&1 || exit 1
   echo " done."
-  
-# Create private DNS records for PE
+
+  # Create private DNS records for PE
 
   peNIC=$(az network private-endpoint show \
     --ids ${peID} \
-    --query "networkInterfaces[0].id" | \
+    --query "networkInterfaces[0].id" |
     tr -d '"')
   echo "PE NIC identified."
 
   peIP=$(az network nic show \
     --ids ${peNIC} \
-    --query "ipConfigurations[0].privateIpAddress" | \
+    --query "ipConfigurations[0].privateIpAddress" |
     tr -d '"')
   echo "PE IP: ${peIP}."
 
@@ -405,85 +379,87 @@ for COMPONENT in source destination; do
     --output none
   echo " done."
 
-# Create public IPs and retrieve the addr
+  # Create public IPs and retrieve the addr
   echo "> Deploying more networking components in ${RG}"
 
   for TYPE in vm gw; do
-    echo -n "deploying ${COMPONENT}-${TYPE}-pip.."
+    if [[ ${TYPE} == "vm" && -z ${GWONLY} ]]; then
+
+      echo -n "deploying ${COMPONENT}-${TYPE}-pip.."
       az network public-ip create \
-      --resource-group ${RG} \
-      --name ${COMPONENT}-${TYPE}-pip \
-      --sku Standard \
-      >>${LOG} 2>&1 || exit 1
-    echo " done."
+        --resource-group ${RG} \
+        --name ${COMPONENT}-${TYPE}-pip \
+        --sku Standard \
+        >>${LOG} 2>&1 || exit 1
+      echo " done."
 
-    echo -n "retrieve IP address of ${COMPONENT}-${TYPE}-pip.."
-    PIPADDR[${COMPONENT}-${TYPE}]=`az network public-ip show \
-      --resource-group ${RG} \
-      --name ${COMPONENT}-${TYPE}-pip \
-      --query "ipAddress" \
-      | sed 's/\"//g'`/32
-    echo " done. (${PIPADDR[${COMPONENT}-${TYPE}]})"
+      echo -n "retrieve IP address of ${COMPONENT}-${TYPE}-pip.."
+      PIPADDR[${COMPONENT} - ${TYPE}]=$(az network public-ip show \
+        --resource-group ${RG} \
+        --name ${COMPONENT}-${TYPE}-pip \
+        --query "ipAddress" |
+        sed 's/\"//g')/32
+      echo " done. (${PIPADDR[${COMPONENT} - ${TYPE}]})"
 
+      # Create NSG and NSG rule
 
-# Create NSG and NSG rule
+      echo -n "deploying ${COMPONENT}-${TYPE}-nsg.."
+      az network nsg create \
+        --resource-group ${RG} \
+        --name ${COMPONENT}-${TYPE}-nsg \
+        >>${LOG} 2>&1 || exit 1
+      echo " done."
 
-    echo -n "deploying ${COMPONENT}-${TYPE}-nsg.."
-    az network nsg create \
-      --resource-group ${RG} \
-      --name ${COMPONENT}-${TYPE}-nsg \
-      >>${LOG} 2>&1 || exit 1
-    echo " done."
+      # Create NIC
 
-# Create NIC
+      echo -n "deploying ${COMPONENT}-${TYPE}-nic.."
+      PRIVIPADDR[${COMPONENT} - ${TYPE}]=${PREFIX[${COMPONENT}]}.${SUBNET[pnat]}.${SUBNETSUFFIX[${TYPE}]}
+      az network nic create \
+        --resource-group ${RG} \
+        --name ${COMPONENT}-${TYPE}-nic \
+        --vnet-name ${COMPONENT}-vnet \
+        --subnet ${COMPONENT}-subnet \
+        --ip-forwarding \
+        --network-security-group ${COMPONENT}-${TYPE}-nsg \
+        --public-ip-address ${COMPONENT}-${TYPE}-pip \
+        --private-ip-address ${PRIVIPADDR[${COMPONENT} - ${TYPE}]} \
+        ${ACCELNET} \
+        >>${LOG} 2>&1 || exit 1
+      echo " done. (${PRIVIPADDR[${COMPONENT} - $TYPE]})"
 
-    echo -n "deploying ${COMPONENT}-${TYPE}-nic.."
-    PRIVIPADDR[${COMPONENT}-${TYPE}]=${PREFIX[${COMPONENT}]}.${SUBNET[pnat]}.${SUBNETSUFFIX[${TYPE}]}
-    az network nic create \
-      --resource-group ${RG} \
-      --name ${COMPONENT}-${TYPE}-nic \
-      --vnet-name ${COMPONENT}-vnet \
-      --subnet ${COMPONENT}-subnet \
-      --ip-forwarding \
-      --network-security-group ${COMPONENT}-${TYPE}-nsg \
-      --public-ip-address ${COMPONENT}-${TYPE}-pip \
-      --private-ip-address ${PRIVIPADDR[${COMPONENT}-${TYPE}]} \
-      ${ACCELNET} \
-      >>${LOG} 2>&1 || exit 1
-    echo " done. (${PRIVIPADDR[${COMPONENT}-$TYPE]})"
+    else
+      echo "noop for ${COMPONENT}-${TYPE}."
+    fi
   done
 done
-
 
 # Make sure we know who the opposite end is
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
-  if [[ ${COMPONENT} == "source" ]]
-  then
+  if [[ ${COMPONENT} == "source" ]]; then
     OTHER="destination"
   else
     OTHER="source"
   fi
 
-
-# Allow wireguard between gateways
+  # Allow wireguard between gateways
 
   echo -n "creating ${COMPONENT}-gw-nsg-rule.."
   az network nsg rule create \
     --resource-group ${RG} \
     --nsg-name ${COMPONENT}-gw-nsg \
     --name wireguard-hop \
-    --description "${PIPADDR[${OTHER}-gw]}->${PIPADDR[${COMPONENT}-gw]}:${PORT[wireguard]}" \
+    --description "${PIPADDR[${OTHER} - gw]}->${PIPADDR[${COMPONENT} - gw]}:${PORT[wireguard]}" \
     --priority 103 \
-    --source-address-prefixes ${PIPADDR[${OTHER}-gw]} \
+    --source-address-prefixes ${PIPADDR[${OTHER} - gw]} \
     --source-port-ranges '*' \
     --destination-address-prefixes '*' \
     --destination-port-ranges ${PORT[wireguard]} \
     --direction Inbound \
     --protocol Udp \
     >>${LOG} 2>&1 || exit 1
-  echo " done. (${PIPADDR[${OTHER}-gw]}->${PIPADDR[${COMPONENT}-gw]}:${PORT[wireguard]})"
+  echo " done. (${PIPADDR[${OTHER} - gw]}->${PIPADDR[${COMPONENT} - gw]}:${PORT[wireguard]})"
 done
 
 # Create our VMs
@@ -492,32 +468,36 @@ echo "> Building VMs"
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   for TYPE in vm gw; do
-    echo -n "creating ${COMPONENT}-${TYPE} VM.."
-    az vm create \
-      --resource-group ${RG} \
-      --name ${COMPONENT}-${TYPE} \
-      --image ${UBUNTUIMAGEURN} \
-      --nics ${COMPONENT}-${TYPE}-nic \
-      --size ${VMSKU} \
-      --admin-username "${ADMINUSER}" \
-      --admin-password "${ADMINPASS}" \
-      --custom-data ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml \
-      >>${LOG} 2>&1 || exit 1
-    echo " done."
+    if [[ ${TYPE} == "vm" && -z ${GWONLY} ]]; then
+
+      az vm create \
+        --resource-group ${RG} \
+        --name ${COMPONENT}-${TYPE} \
+        --image ${UBUNTUIMAGEURN} \
+        --nics ${COMPONENT}-${TYPE}-nic \
+        --size ${VMSKU} \
+        --admin-username "${ADMINUSER}" \
+        --admin-password "${ADMINPASS}" \
+        --custom-data ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml \
+        >>${LOG} 2>&1 || exit 1
+      echo " done." echo -n "creating ${COMPONENT}-${TYPE} VM.."
+
+    else
+      echo "noop for ${COMPONENT}-${TYPE}."
+    fi
   done
 done
 
-
 # Show what was configured
-echo;echo "> Summary"
+echo
+echo "> Summary"
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   for TYPE in vm gw; do
-    echo "${COMPONENT}-${TYPE}: ${PIPADDR[${COMPONENT}-${TYPE}]} | ${PRIVIPADDR[${COMPONENT}-${TYPE}]}" | tee -a ${LOG}
+    echo "${COMPONENT}-${TYPE}: ${PIPADDR[${COMPONENT} - ${TYPE}]} | ${PRIVIPADDR[${COMPONENT} - ${TYPE}]}" | tee -a ${LOG}
   done
 done
-
 
 # Everything _should_ be done by the time we get here. "GOOD LUCK."
 
