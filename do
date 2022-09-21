@@ -383,8 +383,9 @@ for COMPONENT in source destination; do
   echo "> Deploying more networking components in ${RG}"
 
   for TYPE in vm gw; do
-    if [[ ${TYPE} == "vm" && -z ${GWONLY} ]]; then
-
+    if [[ ${TYPE} == "gw" && -n ${GWONLY} ]]; then
+          echo "noop for ${COMPONENT}-${TYPE}."
+    else
       echo -n "deploying ${COMPONENT}-${TYPE}-pip.."
       az network public-ip create \
         --resource-group ${RG} \
@@ -427,8 +428,7 @@ for COMPONENT in source destination; do
         >>${LOG} 2>&1 || exit 1
       echo " done. (${PRIVIPADDR[${COMPONENT} - $TYPE]})"
 
-    else
-      echo "noop for ${COMPONENT}-${TYPE}."
+
     fi
   done
 done
@@ -450,7 +450,7 @@ set -x
     --resource-group ${RG} \
     --nsg-name ${COMPONENT}-gw-nsg \
     --name wireguard-hop \
-    --description "${PIPADDR[${OTHER} - gw]}->${PIPADDR[${COMPONENT} - gw]}:${PORT[wireguard]}" \
+    --description "wireguard" \
     --priority 103 \
     --source-address-prefixes ${PIPADDR[${OTHER} - gw]} \
     --source-port-ranges '*' \
@@ -468,8 +468,9 @@ echo "> Building VMs"
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   for TYPE in vm gw; do
-    if [[ ${TYPE} == "vm" && -z ${GWONLY} ]]; then
-
+    if [[ ${TYPE} == "gw" && -n ${GWONLY} ]]; then
+      echo "noop for ${COMPONENT}-${TYPE}."
+    else
       az vm create \
         --resource-group ${RG} \
         --name ${COMPONENT}-${TYPE} \
@@ -481,9 +482,6 @@ for COMPONENT in source destination; do
         --custom-data ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml \
         >>${LOG} 2>&1 || exit 1
       echo " done." echo -n "creating ${COMPONENT}-${TYPE} VM.."
-
-    else
-      echo "noop for ${COMPONENT}-${TYPE}."
     fi
   done
 done
