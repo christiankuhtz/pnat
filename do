@@ -270,12 +270,12 @@ for COMPONENT in source destination; do
   echo " done."
 
   echo -n "retrieve IP address of ${COMPONENT}-bastion-pip.."
-  PIPADDR[${COMPONENT} - bastion]=$(az network public-ip show \
+  PIPADDR[${COMPONENT}-bastion]=$(az network public-ip show \
     --resource-group ${RG} \
     --name ${COMPONENT}-bastion-pip \
     --query "ipAddress" |
     sed 's/\"//g')/32
-  echo " done. (${PIPADDR[${COMPONENT} - bastion]})"
+  echo " done. (${PIPADDR[${COMPONENT}-bastion]})"
 
   echo -n "creating bastion for ${COMPONENT}.."
   az network bastion create \
@@ -444,7 +444,7 @@ for COMPONENT in source destination; do
   fi
 
   # Allow wireguard between gateways
-
+set -x 
   echo -n "creating ${COMPONENT}-gw-nsg-rule.."
   az network nsg rule create \
     --resource-group ${RG} \
