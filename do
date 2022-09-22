@@ -383,7 +383,7 @@ for COMPONENT in source destination; do
   echo "> Deploying more networking components in ${RG}"
 
   for TYPE in vm gw; do
-    if [[ ${TYPE} == "gw" && -n ${GWONLY} ]]; then
+    if [[ ${TYPE} == "vm" && -n ${GWONLY} ]]; then
           echo "noop for ${COMPONENT}-${TYPE}."
     else
       echo -n "deploying ${COMPONENT}-${TYPE}-pip.."
@@ -468,7 +468,7 @@ echo "> Building VMs"
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   for TYPE in vm gw; do
-    if [[ ${TYPE} == "gw" && -n ${GWONLY} ]]; then
+    if [[ ${TYPE} == "vm" && -n ${GWONLY} ]]; then
       echo "noop for ${COMPONENT}-${TYPE}."
     else
       az vm create \
