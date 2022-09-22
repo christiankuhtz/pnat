@@ -395,12 +395,12 @@ for COMPONENT in source destination; do
       echo " done."
 
       echo -n "retrieve IP address of ${COMPONENT}-${TYPE}-pip.."
-      PIPADDR[${COMPONENT} - ${TYPE}]=$(az network public-ip show \
+      PIPADDR[${COMPONENT}-${TYPE}]=$(az network public-ip show \
         --resource-group ${RG} \
         --name ${COMPONENT}-${TYPE}-pip \
         --query "ipAddress" |
         sed 's/\"//g')/32
-      echo " done. (${PIPADDR[${COMPONENT} - ${TYPE}]})"
+      echo " done. (${PIPADDR[${COMPONENT}-${TYPE}]})"
 
       # Create NSG and NSG rule
 
