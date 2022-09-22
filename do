@@ -44,11 +44,11 @@ GWONLY=true
 # Check if Azure CLI exists
 
 echo -n "checking for Azure CLI.."
-az 2>&1 >/dev/null
+az account show -otable 2>&1 >/dev/null
 if [ $? -eq 0 ]; then
   echo " found."
 else
-  echo " not found.. Install Azure CLI or check installation."
+  echo " doesn't exist or is busted.. Install Azure CLI or check installation (az login'ed?)."
   exit 1
 fi
 
