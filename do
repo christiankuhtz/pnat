@@ -414,7 +414,7 @@ for COMPONENT in source destination; do
       # Create NIC
 
       echo -n "deploying ${COMPONENT}-${TYPE}-nic.."
-      PRIVIPADDR[${COMPONENT} - ${TYPE}]=${PREFIX[${COMPONENT}]}.${SUBNET[pnat]}.${SUBNETSUFFIX[${TYPE}]}
+      PRIVIPADDR[${COMPONENT}-${TYPE}]=${PREFIX[${COMPONENT}]}.${SUBNET[pnat]}.${SUBNETSUFFIX[${TYPE}]}
       az network nic create \
         --resource-group ${RG} \
         --name ${COMPONENT}-${TYPE}-nic \
@@ -423,10 +423,10 @@ for COMPONENT in source destination; do
         --ip-forwarding \
         --network-security-group ${COMPONENT}-${TYPE}-nsg \
         --public-ip-address ${COMPONENT}-${TYPE}-pip \
-        --private-ip-address ${PRIVIPADDR[${COMPONENT} - ${TYPE}]} \
+        --private-ip-address ${PRIVIPADDR[${COMPONENT}-${TYPE}]} \
         ${ACCELNET} \
         >>${LOG} 2>&1 || exit 1
-      echo " done. (${PRIVIPADDR[${COMPONENT} - $TYPE]})"
+      echo " done. (${PRIVIPADDR[${COMPONENT}-$TYPE]})"
 
 
     fi
@@ -452,14 +452,14 @@ for COMPONENT in source destination; do
     --name wireguard-hop \
     --description "wireguard" \
     --priority 103 \
-    --source-address-prefixes ${PIPADDR[${OTHER} - gw]} \
+    --source-address-prefixes ${PIPADDR[${OTHER}-gw]} \
     --source-port-ranges '*' \
     --destination-address-prefixes '*' \
     --destination-port-ranges ${PORT[wireguard]} \
     --direction Inbound \
     --protocol Udp \
     >>${LOG} 2>&1 || exit 1
-  echo " done. (${PIPADDR[${OTHER} - gw]}->${PIPADDR[${COMPONENT} - gw]}:${PORT[wireguard]})"
+  echo " done. (${PIPADDR[${OTHER}-gw]}->${PIPADDR[${COMPONENT}-gw]}:${PORT[wireguard]})"
 done
 
 # Create our VMs
@@ -493,7 +493,7 @@ echo "> Summary"
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   for TYPE in vm gw; do
-    echo "${COMPONENT}-${TYPE}: ${PIPADDR[${COMPONENT} - ${TYPE}]} | ${PRIVIPADDR[${COMPONENT} - ${TYPE}]}" | tee -a ${LOG}
+    echo "${COMPONENT}-${TYPE}: ${PIPADDR[${COMPONENT}-${TYPE}]} | ${PRIVIPADDR[${COMPONENT}-${TYPE}]}" | tee -a ${LOG}
   done
 done
 
