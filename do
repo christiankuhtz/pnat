@@ -482,7 +482,7 @@ for COMPONENT in source destination; do
         --admin-password "${ADMINPASS}" \
         --custom-data ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml \
         >>${LOG} 2>&1 || exit 1
-      echo " done." 
+      echo " done."
     fi
   done
 done
