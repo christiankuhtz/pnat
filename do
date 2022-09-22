@@ -4,7 +4,7 @@
 # "known good defaults", can be modified in CONFIG file
 
 PROJ=pnat
-LOCATION=westcentralus
+LOCATION=
 declare -A PREFIX
 declare -A PREFIXLEN
 declare -A PIPADDR
@@ -100,7 +100,7 @@ echo "credentials found in ${CONFIG}. (${ADMINUSER})"
 # Advise on location
 
 if [[ -z ${LOCATION} ]]; then
-  echo -n "LOCATION not found in ${CONFIG}. Using default "
+  echo -n "LOCATION parameter in file  ${CONFIG} missing. aborting." && exit 1
 else
   echo -n "LOCATION found in ${CONFIG}. Using "
 fi
