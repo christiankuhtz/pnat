@@ -494,7 +494,11 @@ echo "> Summary"
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   for TYPE in vm gw; do
-    echo "${COMPONENT}-${TYPE}: ${PIPADDR[${COMPONENT}-${TYPE}]} | ${PRIVIPADDR[${COMPONENT}-${TYPE}]}" | tee -a ${LOG}
+    if [[ ${TYPE} == "vm" && -n ${GWONLY} ]]; then
+      echo "no ${COMPONENT}-${TYPE}-vm deployed."
+    else
+      echo "${COMPONENT}-${TYPE}: ${PIPADDR[${COMPONENT}-${TYPE}]} | ${PRIVIPADDR[${COMPONENT}-${TYPE}]}" | tee -a ${LOG}
+    fi
   done
 done
 
