@@ -50,8 +50,8 @@ else
   echo "${LOG} will be created."
   touch ${LOG} || echo "can't create ${LOG}.";exit 1
 fi
-echo -n "START: " >> ${LOG}
-date >> ${LOG}
+echo -n "START: " | tee -a ${LOG}
+date | tee -a ${LOG}
 
 # Check if Azure CLI exists
 
@@ -459,8 +459,8 @@ done
 # Create our VMs
 echo "> Building VMs"
 
-echo -n "START: " >> ${LOG}
-date >> ${LOG}
+echo -n "START: " | tee -a ${LOG}
+date | tee -a ${LOG}
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg
   for TYPE in vm gw; do
@@ -482,8 +482,8 @@ for COMPONENT in source destination; do
     fi
   done
 done
-echo -n "END: " >> ${LOG}
-date >> ${LOG}
+echo -n "END: " | tee -a ${LOG}
+date | tee -a ${LOG}
 
 
 # Show what was configured
@@ -503,8 +503,8 @@ done
 
 # Everything _should_ be done by the time we get here. "GOOD LUCK."
 
-echo -n "END: " >> ${LOG}
-date >> ${LOG}
+echo -n "END: " | tee -a ${LOG}
+date | tee -a ${LOG}
 
 echo "done."
 
