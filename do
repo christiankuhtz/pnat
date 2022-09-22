@@ -471,6 +471,7 @@ for COMPONENT in source destination; do
     if [[ ${TYPE} == "vm" && -n ${GWONLY} ]]; then
       echo "noop for ${COMPONENT}-${TYPE}."
     else
+      echo -n "creating ${COMPONENT}-${TYPE} VM.."
       az vm create \
         --resource-group ${RG} \
         --name ${COMPONENT}-${TYPE} \
@@ -481,7 +482,7 @@ for COMPONENT in source destination; do
         --admin-password "${ADMINPASS}" \
         --custom-data ${BUILDDIR}/${COMPONENT}-${TYPE}-init.yaml \
         >>${LOG} 2>&1 || exit 1
-      echo " done." echo -n "creating ${COMPONENT}-${TYPE} VM.."
+      echo " done." 
     fi
   done
 done
