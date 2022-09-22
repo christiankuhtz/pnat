@@ -41,6 +41,17 @@ BUILDDIR=./build
 FORCE=
 GWONLY=true
 
+# Advise on log file
+
+if [[ -e ${LOG} ]]; then
+  echo "${LOG} exists, will be overwritten."
+  rm ${LOG} 2>&1 >/dev/null
+else
+  echo "${LOG} will be created."
+  touch ${LOG} || echo "can't create ${LOG}.";exit 1
+fi
+date >> ${LOG}
+
 # Check if Azure CLI exists
 
 echo -n "checking for Azure CLI.."
@@ -75,16 +86,6 @@ echo "found readable config file (${CONFIG})."
 
 echo "Wireguard port: ${PORT[wireguard]}"
 
-# Force shared delete?
-
-if [[ -z ${FORCE} ]]; then
-  echo -n "preserving"
-else
-  echo -n "deleting log and"
-  rm ${LOG} 2>&1 >/dev/null
-fi
-echo " shared rg if present."
-
 # Advise on creds
 
 if [[ -z ${ADMINUSER} ]]; then
@@ -103,14 +104,6 @@ else
   echo -n "LOCATION found in ${CONFIG}. Using "
 fi
 echo "region ${LOCATION}."
-
-# Advise on log file
-
-if [[ -e ${LOG} ]]; then
-  echo "${LOG} exists, will be overwritten."
-else
-  echo "${LOG} will be created."
-fi
 
 # Deployment prep
 
