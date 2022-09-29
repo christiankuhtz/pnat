@@ -297,7 +297,7 @@ storageAccountID=$(az storage account show \
 
 # Iterate through the vnets/subnets to create local PE's for storage and register in private DNS zone
 
-echo "> Deploying Private Endpoint and Private NDS components in ${RG}"
+echo "> Deploying Private Endpoint and Private DNS components in ${RG}"
 
 for COMPONENT in source destination; do
   RG=${PROJ}-${COMPONENT}-rg

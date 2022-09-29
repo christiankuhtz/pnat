@@ -9,6 +9,10 @@ write_files:
       TCPKeepAlive yes
     path: /etc/ssh/sshd_config
     append: true
+#  - content: |
+#      DPkg::options \{ \"--force-confdef\"\; \"--force-confold\"\; \}
+#    path: /etc/apt/apt.conf.d/local
+#    append: true
   - content: |
       username=SMBACCOUNTNAME
       password=SMBACCOUNTKEY
@@ -19,8 +23,12 @@ write_files:
     path: /etc/fstab
     append: true
 runcmd:
-  - [ systemctl, restart, ssh ]
+  - systemctl restart ssh
   - mkdir /mnt/share
+  - apt update
+  - apt upgrade -y
+  - apt autoremove -y
+  - do-release-upgrade -f DistUpgradeViewNonInteractive
 power_state:
   mode: reboot
   delay: 1
