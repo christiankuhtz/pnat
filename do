@@ -152,7 +152,7 @@ echo "done."
 
 for COMPONENT in shared source destination; do
   RG=${PROJ}-${COMPONENT}-rg
-  date
+  date | tee -a ${LOG}
   echo -n "rg ${RG} does"
   if [[ "$(az group exists --name ${RG})" == "true" ]]; then
     echo -n " exist.."
@@ -179,7 +179,7 @@ for COMPONENT in shared source destination; do
     echo " done."
   fi
 done
-date
+date | tee -a ${LOG}
 
 # Create shared storage
 
@@ -283,7 +283,7 @@ for COMPONENT in source destination; do
     sed 's/\"//g')/32
   echo " done. (${PIPADDR[${COMPONENT}-bastion]})"
 
-  date
+  date | tee -a ${LOG}
   echo -n "creating bastion for ${COMPONENT}.."
   az network bastion create \
     --resource-group ${RG} \
@@ -294,7 +294,7 @@ for COMPONENT in source destination; do
     --sku Standard \
     >>${LOG} 2>&1 || exit 1
   echo " done."
-  date
+  date | tee -a ${LOG}
 
 done
 
@@ -329,7 +329,7 @@ for COMPONENT in source destination; do
 
   # creating PE
 
-  date
+  date | tee -a ${LOG}
   echo "creating PE."
   peID=$(az network private-endpoint create \
     --resource-group ${RG} \
@@ -340,7 +340,7 @@ for COMPONENT in source destination; do
     --group-id "file" \
     --connection-name "${PROJ}shared" \
     --query "id" | tr -d '"') &&
-  date
+  date | tee -a ${LOG}
 
   # private DNS setup for vnet
   
