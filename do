@@ -256,6 +256,7 @@ for COMPONENT in source destination; do
 
   # Adding bastion subnet
 
+  date
   echo -n "adding AzureBastionSubnet for ${COMPONENT} bastion.."
   az network vnet subnet create \
     --resource-group ${RG} \
@@ -264,6 +265,7 @@ for COMPONENT in source destination; do
     --address-prefixes ${PREFIX[${COMPONENT}]}.${SUBNET[bastion]}.0/${PREFIXLEN[${COMPONENT}]} \
     >>${LOG} 2>&1 || exit 1
   echo " done."
+  date
 
   # creating bastion
 
@@ -327,6 +329,7 @@ for COMPONENT in source destination; do
 
   # creating PE
 
+  date
   echo "creating PE."
   peID=$(az network private-endpoint create \
     --resource-group ${RG} \
@@ -337,9 +340,11 @@ for COMPONENT in source destination; do
     --group-id "file" \
     --connection-name "${PROJ}shared" \
     --query "id" | tr -d '"') &&
+  date
 
-    # private DNS setup for vnet
-    echo -n "creating ${COMPONENT}.io private DNS zone.."
+  # private DNS setup for vnet
+  
+  echo -n "creating ${COMPONENT}.io private DNS zone.."
   az network private-dns zone create \
     --resource-group ${RG} \
     --name "${COMPONENT}.io" \
