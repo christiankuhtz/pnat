@@ -138,6 +138,16 @@ for COMPONENT in source destination; do
 done
 echo " done."
 
+# Update .yaml variables
+
+echo -n "updating .yaml's with actual wireguard port ${PORT[wireguard]}.. "
+for COMPONENT in source destination; do
+  mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
+  sed -e "s/WIREGUARDPORT/${PORT[wireguard]}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre >${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
+  mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
+done
+echo "done."
+
 # Check if resource group exists, create it if it does not or delete if it does, unless it's shared rg
 
 for COMPONENT in shared source destination; do

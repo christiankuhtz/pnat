@@ -22,6 +22,10 @@ write_files:
       //share.COMPONENT.io/share /mnt/share cifs nofail,vers=3.0,credentials=/etc/smbcredentials/share.cred,serverino,nosharesock,actimeo=30,dir_mode=0777,file_mode=0777
     path: /etc/fstab
     append: true
+  - content: |
+      ListenPort=WIREGUARDPORT
+    path: /etc/wireguard/wg0.conf
+    permissions: '0600'
 runcmd:
   - systemctl restart ssh
   - mkdir /mnt/share
