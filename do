@@ -256,7 +256,6 @@ for COMPONENT in source destination; do
 
   # Adding bastion subnet
 
-  date
   echo -n "adding AzureBastionSubnet for ${COMPONENT} bastion.."
   az network vnet subnet create \
     --resource-group ${RG} \
@@ -265,7 +264,6 @@ for COMPONENT in source destination; do
     --address-prefixes ${PREFIX[${COMPONENT}]}.${SUBNET[bastion]}.0/${PREFIXLEN[${COMPONENT}]} \
     >>${LOG} 2>&1 || exit 1
   echo " done."
-  date
 
   # creating bastion
 
@@ -285,6 +283,7 @@ for COMPONENT in source destination; do
     sed 's/\"//g')/32
   echo " done. (${PIPADDR[${COMPONENT}-bastion]})"
 
+  date
   echo -n "creating bastion for ${COMPONENT}.."
   az network bastion create \
     --resource-group ${RG} \
@@ -295,6 +294,7 @@ for COMPONENT in source destination; do
     --sku Standard \
     >>${LOG} 2>&1 || exit 1
   echo " done."
+  date
 
 done
 
