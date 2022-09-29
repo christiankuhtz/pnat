@@ -140,7 +140,7 @@ echo " done."
 
 # Update .yaml variables
 
-echo -n "updating .yaml's with actual wireguard port ${PORT[wireguard]}.. "
+echo -n "setting up .yaml's with actual wireguard port ${PORT[wireguard]}.. "
 for COMPONENT in source destination; do
   mv ${BUILDDIR}/${COMPONENT}-gw-init.yaml ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre
   sed -e "s/WIREGUARDPORT/${PORT[wireguard]}/" ${BUILDDIR}/${COMPONENT}-gw-init.yaml-pre >${BUILDDIR}/${COMPONENT}-gw-init.yaml >>${LOG} 2>&1 || exit 1
