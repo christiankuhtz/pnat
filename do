@@ -152,6 +152,7 @@ echo "done."
 
 for COMPONENT in shared source destination; do
   RG=${PROJ}-${COMPONENT}-rg
+  date
   echo -n "rg ${RG} does"
   if [[ "$(az group exists --name ${RG})" == "true" ]]; then
     echo -n " exist.."
@@ -178,6 +179,7 @@ for COMPONENT in shared source destination; do
     echo " done."
   fi
 done
+date
 
 # Create shared storage
 
