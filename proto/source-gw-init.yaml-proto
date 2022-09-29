@@ -32,7 +32,7 @@ runcmd:
   - apt update
   - apt upgrade -y
   - apt autoremove -y
-  - do-release-upgrade -f DistUpgradeViewNonInteractive -d
+  - do-release-upgrade -f DistUpgradeViewNonInteractive
 power_state:
   mode: reboot
   delay: 1
