@@ -38,4 +38,5 @@ power_state:
   delay: 1
   message: "cleanup reboot"
 packages:
+  - wireguard
   - wireguard-tools
