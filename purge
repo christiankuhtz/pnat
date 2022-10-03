@@ -5,6 +5,9 @@
 
 PROJ=pnat
 LOCATION=
+CONFIG=./config
+
+source ${CONFIG}
 
 # Check if Azure CLI exists
 
