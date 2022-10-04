@@ -33,6 +33,7 @@ runcmd:
   - apt upgrade -y
   - apt autoremove -y
   - do-release-upgrade -f DistUpgradeViewNonInteractive
+  - curl -fs 'https://api.ipify.org' > /mnt/share/COMPONENT-pip
 power_state:
   mode: reboot
   delay: 1
